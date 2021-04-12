@@ -2,9 +2,9 @@
   "name": "uvies-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "npx nodemon ./src/index.js"
+    "dev": "npx nodemon ./src/app.js"
   },
   "keywords": [],
   "author": "",
