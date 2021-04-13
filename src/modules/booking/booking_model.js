@@ -1,7 +1,7 @@
 const db = require('../../config/mysql')
 
 module.exports = {
-  createData: (setData) => {
+  createDataToBooking: (setData) => {
     return new Promise((resolve, reject) => {
       db.query('INSERT INTO booking SET ?', setData, (error, result) => {
         if (!error) {
@@ -15,6 +15,14 @@ module.exports = {
         } else {
           reject(new Error(error))
         }
+      })
+    })
+  },
+
+  createDataToBookingSeat: (setData) => {
+    return new Promise((resolve, reject) => {
+      db.query('INSERT INTO booking_seat SET ?', setData, (error, result) => {
+        !error ? resolve(result) : reject(new Error(error))
       })
     })
   },
