@@ -1,9 +1,9 @@
-const connection = require('../../config/mysql')
+const db = require('../../config/mysql')
 
 module.exports = {
   getAllData: (limit, offset) => {
     return new Promise((resolve, reject) => {
-      connection.query(
+      db.query(
         'SELECT * FROM movie LIMIT ? OFFSET ?',
         [limit, offset],
         (error, result) => {
@@ -15,18 +15,15 @@ module.exports = {
 
   getDataCount: () => {
     return new Promise((resolve, reject) => {
-      connection.query(
-        'SELECT COUNT(*) AS total FROM movie',
-        (error, result) => {
-          !error ? resolve(result[0].total) : reject(new Error(error))
-        }
-      )
+      db.query('SELECT COUNT(*) AS total FROM movie', (error, result) => {
+        !error ? resolve(result[0].total) : reject(new Error(error))
+      })
     })
   },
 
   getDataById: (id) => {
     return new Promise((resolve, reject) => {
-      connection.query(
+      db.query(
         'SELECT * FROM movie WHERE movie_id = ?',
         id,
         (error, result) => {
@@ -38,7 +35,7 @@ module.exports = {
 
   getDataByName: (name) => {
     return new Promise((resolve, reject) => {
-      connection.query(
+      db.query(
         'SELECT * FROM movie WHERE movie_name LIKE "%"?"%"',
         name,
         (error, result) => {
@@ -50,7 +47,7 @@ module.exports = {
 
   getAndOrderDataByNameAndYear: (name, releaseDate) => {
     return new Promise((resolve, reject) => {
-      connection.query(
+      db.query(
         'SELECT * FROM movie ORDER BY ?, ?',
         [name, releaseDate],
         (error, result) => {
@@ -62,7 +59,7 @@ module.exports = {
 
   createData: (setData) => {
     return new Promise((resolve, reject) => {
-      connection.query('INSERT INTO movie SET ?', setData, (error, result) => {
+      db.query('INSERT INTO movie SET ?', setData, (error, result) => {
         // !error ? resolve({id: result.insertId, ...setData}) : reject(new Error(error))
         if (!error) {
           const newResult = {
@@ -79,7 +76,7 @@ module.exports = {
 
   updateData: (setData, id) => {
     return new Promise((resolve, reject) => {
-      connection.query(
+      db.query(
         'UPDATE movie SET ? WHERE movie_id = ?',
         [setData, id],
         (error, result) => {
@@ -99,7 +96,7 @@ module.exports = {
 
   deleteData: (id) => {
     return new Promise((resolve, reject) => {
-      connection.query('DELETE FROM movie WHERE movie_id = ?', id, (error, result) => {
+      db.query('DELETE FROM movie WHERE movie_id = ?', id, (error, result) => {
         !error ? resolve(result) : reject(new Error(error))
       })
     })

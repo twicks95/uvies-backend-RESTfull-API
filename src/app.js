@@ -9,6 +9,7 @@ const routerNavigation = require('./routes')
 const app = express() // Menjalankan express
 const port = 3000
 
+// app.use(env)
 app.use(morgan('dev'))
 app.use(cors())
 app.options('*', cors())

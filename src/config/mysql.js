@@ -1,15 +1,16 @@
 const mysql = require('mysql2')
+require('dotenv').config()
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
   database: 'uvies_app'
 })
 
-connection.connect((error) => {
+db.connect((error) => {
   if (error) throw error
   console.log("You're now connected...")
 })
 
-module.exports = connection
+module.exports = db
