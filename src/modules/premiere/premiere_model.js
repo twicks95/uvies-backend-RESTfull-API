@@ -37,6 +37,18 @@ module.exports = {
     })
   },
 
+  getDataById: (id) => {
+    return new Promise((resolve, reject) => {
+      db.query(
+        'SELECT * FROM premiere WHERE premiere_id = ?',
+        id,
+        (error, result) => {
+          !error ? resolve(result) : reject(new Error(error))
+        }
+      )
+    })
+  },
+
   updateData: (setData, id) => {
     return new Promise((resolve, reject) => {
       db.query('UPDATE premiere SET ? WHERE premiere_id = ?', [setData, id], (error, result) => {
@@ -56,14 +68,7 @@ module.exports = {
   deleteData: (id) => {
     return new Promise((resolve, reject) => {
       db.query('DELETE FROM premiere WHERE premiere_id = ?', id, (error, result) => {
-        if (!error) {
-          db.query('SELECT * FROM premiere', (error, result) => {
-            console.log(result)
-            console.log(error)
-          })
-        } else {
-          console.log(error)
-        }
+        !error ? resolve(result) : reject(new Error(error))
       })
     })
   }

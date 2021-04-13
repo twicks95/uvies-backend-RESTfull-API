@@ -33,17 +33,12 @@ module.exports = {
       return wrapper.response(
         res,
         200,
-        'Get All Premiere Location Success!',
+        'Success Get All Premiere Data',
         result,
         pageInfo
       )
     } catch (error) {
-      return wrapper.response(
-        res,
-        404,
-        'Failed To Get All Premiere Location Data!',
-        error
-      )
+      return wrapper.response(res, 400, 'Bad Request', error)
     }
   },
 
@@ -55,7 +50,8 @@ module.exports = {
         movie_id: movieID,
         location_id: locationID,
         premiere_name: premiereName,
-        premiere_price: premierePrice
+        premiere_price: premierePrice,
+        premiere_updated_at: new Date(Date.now())
       }
       const result = await premiereModel.updateData(setData, id)
       return wrapper.response(res, 200, 'Success Update Data Premiere', result)
@@ -67,11 +63,26 @@ module.exports = {
   deletePremiere: async (req, res) => {
     try {
       const { id } = req.params
-      // const data = await premiereModel.getAllData
-      const result = premiereModel.deleteData(id)
-      // console.log(result)
+      const dataToDelete = await premiereModel.getDataById(id)
+
+      if (dataToDelete.length > 0) {
+        await premiereModel.deleteData(id)
+        return wrapper.response(
+          res,
+          200,
+          'Success Delete Premiere',
+          dataToDelete
+        )
+      } else {
+        return wrapper.response(
+          res,
+          404,
+          'Failed! No Data With Id ' + id + ' To Be Deleted',
+          null
+        )
+      }
     } catch (error) {
-      console.log(error)
+      return wrapper.response(res, 400, 'Bad Request', error)
     }
   }
 }
