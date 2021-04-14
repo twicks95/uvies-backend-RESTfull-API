@@ -5,11 +5,11 @@ const helmet = require('helmet')
 const compression = require('compression')
 const bodyParser = require('body-parser')
 const routerNavigation = require('./routes')
+require('dotenv').config()
 
 const app = express() // Menjalankan express
-const port = 3000
+const port = process.env.PORT || 3000
 
-// app.use(env)
 app.use(morgan('dev'))
 app.use(cors())
 app.options('*', cors())
@@ -23,5 +23,5 @@ app.use('/api/v1', routerNavigation)
 
 // Menjalankan server dengan memanggil method listen yang dimiliki express
 app.listen(port, () => {
-  console.log('Express app is listen to port 3000!')
+  console.log(`Express app is listen to port ${port}`)
 })
