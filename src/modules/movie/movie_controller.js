@@ -1,33 +1,95 @@
 const wrapper = require('../../helpers/wrapper')
+const pagination = require('../../helpers/pagination')
 const movieModel = require('./movie_model')
 
 module.exports = {
-  // sayHello: (req, res) => {
-  //   res.status(200).send('Hello World')
-  // },
+  postMovie: async (req, res) => {
+    try {
+      const { movieName, movieCategory, movieReleaseDate } = req.body
+      const setData = {
+        movie_name: movieName,
+        movie_category: movieCategory,
+        movie_release_date: movieReleaseDate
+      }
+      const result = await movieModel.createData(setData)
+      return wrapper.response(res, 200, 'Success Create Movie', result)
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error)
+    }
+  },
 
   getAllMovie: async (req, res) => {
     try {
-      let { page, limit } = req.query
+      // req.query = { keyword: 'an', limit: '3', offset: '0', sort: 'movie_name ASC' }
+      let { page, limit, searchByName, sort } = req.query
+      // console.log({sort}) // undefined if none
       page = parseInt(page)
       limit = parseInt(limit)
+
+      if (!searchByName) {
+        searchByName = ''
+      } else if (!sort) {
+        sort = 'movie_id ASC'
+      }
+
+      // console.log(searchByName)
+      // console.log(sort)
+
+      // Proses untuk data pagination
       const totalData = await movieModel.getDataCount()
       const totalPage = Math.ceil(totalData / limit)
       const offset = page * limit - limit
-      const pageInfo = {
-        page,
-        totalPage,
+      const pageInfo = pagination.pageInfo(page, totalPage, limit, totalData)
+      // end#
+      const result = await movieModel.getAllData(
+        searchByName,
+        sort,
         limit,
-        totalData
-      }
-      const result = await movieModel.getAllData(limit, offset)
-      return wrapper.response(
-        res,
-        200,
-        'Success Get All Movie',
-        result,
-        pageInfo
+        offset
       )
+      // console.log(result)
+
+      if (searchByName && sort === 'movie_id ASC') {
+        return wrapper.response(
+          res,
+          200,
+          `Success Get All Movie By Keyword ${searchByName}`,
+          result,
+          pageInfo
+        )
+      } else if (
+        (searchByName && sort === 'movie_name ASC') ||
+        sort === 'movie_name DESC'
+      ) {
+        sort = sort.split(' ')
+        return wrapper.response(
+          res,
+          200,
+          `Success Get All Movie Keyword = '${searchByName}' and Ordered By ${sort[0]} ${sort[1]}`,
+          result,
+          pageInfo
+        )
+      } else if (
+        (searchByName && sort === 'movie_release_date ASC') ||
+        sort === 'movie_release_date DESC'
+      ) {
+        sort = sort.split(' ')
+        return wrapper.response(
+          res,
+          200,
+          `Success Get All Movie Keyword = '${searchByName}' and Ordered By ${sort[0]} ${sort[1]}`,
+          result,
+          pageInfo
+        )
+      } else {
+        return wrapper.response(
+          res,
+          200,
+          'Success Get All Movie',
+          result,
+          pageInfo
+        )
+      }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
     }
@@ -39,51 +101,15 @@ module.exports = {
       const result = await movieModel.getDataById(id)
 
       if (result.length > 0) {
+        return wrapper.response(res, 200, 'Success Get Movie By Id', result)
+      } else {
         return wrapper.response(
           res,
-          200,
-          'Success Get Movie By Id',
-          result
+          404,
+          'Data With Id ' + id + ' Not Found',
+          null
         )
-      } else {
-        return wrapper.response(res, 404, 'Data With Id ' + id + ' Not Found', null)
       }
-    } catch (error) {
-      return wrapper.response(res, 400, 'Bad Request', error)
-    }
-  },
-
-  getMovieByName: async (req, res) => {
-    try {
-      const { name } = req.params
-      const result = await movieModel.getDataByName(name)
-
-      if (result.length > 0) {
-        return wrapper.response(
-          res,
-          200,
-          'Success Get Movie By Name',
-          result
-        )
-      } else {
-        return wrapper.response(res, 404, 'No Movie Found!', null)
-      }
-    } catch (error) {
-      return wrapper.response(res, 400, 'Bad Request', error)
-    }
-  },
-
-  postMovie: async (req, res) => {
-    try {
-      console.log(req.body)
-      const { movieName, movieCategory, movieReleaseDate } = req.body
-      const setData = {
-        movie_name: movieName,
-        movie_category: movieCategory,
-        movie_release_date: movieReleaseDate
-      }
-      const result = await movieModel.createData(setData)
-      return wrapper.response(res, 200, 'Success Create Movie', result)
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
     }
@@ -109,13 +135,19 @@ module.exports = {
   deleteMovie: async (req, res) => {
     try {
       const { id } = req.params
-      const result = await movieModel.deleteData(id)
-      // console.log(req.params)
-      // console.log(result.affectedRows)
-      if (result.affectedRows > 0) {
-        return wrapper.response(res, 200, 'Success Delete Movie', result)
+      const dataToDelete = await movieModel.getDataById(id)
+      console.log(dataToDelete)
+
+      if (dataToDelete.length > 0) {
+        await movieModel.deleteData(id)
+        return wrapper.response(res, 200, 'Success Delete Movie', dataToDelete)
       } else {
-        return wrapper.response(res, 404, 'Failed! No Data With Id ' + id + ' To Be Deleted', result)
+        return wrapper.response(
+          res,
+          404,
+          'Failed! No Data With Id ' + id + ' To Be Deleted',
+          null
+        )
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)

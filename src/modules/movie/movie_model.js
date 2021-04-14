@@ -1,11 +1,11 @@
 const db = require('../../config/mysql')
 
 module.exports = {
-  getAllData: (limit, offset) => {
+  getAllData: (searchKeyword, order, limit, offset) => {
     return new Promise((resolve, reject) => {
       db.query(
-        'SELECT * FROM movie LIMIT ? OFFSET ?',
-        [limit, offset],
+        `SELECT * FROM movie WHERE movie_name LIKE "%"?"%" ORDER BY ${order} LIMIT ? OFFSET ?`,
+        [searchKeyword, limit, offset],
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))
         }
@@ -26,30 +26,6 @@ module.exports = {
       db.query(
         'SELECT * FROM movie WHERE movie_id = ?',
         id,
-        (error, result) => {
-          !error ? resolve(result) : reject(new Error(error))
-        }
-      )
-    })
-  },
-
-  getDataByName: (name) => {
-    return new Promise((resolve, reject) => {
-      db.query(
-        'SELECT * FROM movie WHERE movie_name LIKE "%"?"%"',
-        name,
-        (error, result) => {
-          !error ? resolve(result) : reject(new Error(error))
-        }
-      )
-    })
-  },
-
-  getAndOrderDataByNameAndYear: (name, releaseDate) => {
-    return new Promise((resolve, reject) => {
-      db.query(
-        'SELECT * FROM movie ORDER BY ?, ?',
-        [name, releaseDate],
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))
         }
