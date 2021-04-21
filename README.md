@@ -1,6 +1,6 @@
 <h1 align="center">ExpressJS - Uvies RESTfull API</h1>
 
-#background_projek. [More about Express](https://en.wikipedia.org/wiki/Express.js)
+This RESTfull API was built for every aplication that need to get or collect data information from uvies database. To know how to perform any action depend on what you need, you can read the postman documentation to see all end point. [More about Express](https://en.wikipedia.org/wiki/Express.js)
 
 ## Built With
 
