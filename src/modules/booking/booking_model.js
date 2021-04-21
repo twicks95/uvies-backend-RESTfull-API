@@ -5,6 +5,12 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.query('INSERT INTO booking SET ?', setData, (error, result) => {
         if (!error) {
+          // const joinResult = db.query(
+          //   `SELECT * FROM booking JOIN premiere ON booking.premiere_id = premiere.premiere_id WHERE booking_id = ${result.insertId}`,
+          //   (error, result) => {
+          //     !error ? result : error;
+          //   }
+          // )
           // isi result hasil query insert into adalah objek yang berisi informasi dari proses insert, bukan isi data yang sedang dilakukan query
           // objek newResult dibuat karena akan diisi data-data yang diproses berisi apa aja yang kemudian akan dilempar ke parameter resolve
           const newResult = {
@@ -12,6 +18,7 @@ module.exports = {
             ...setData
           }
           resolve(newResult)
+          // console.log(joinResult)
         } else {
           reject(new Error(error))
         }
@@ -30,9 +37,13 @@ module.exports = {
   getAllData: (limit, offset) => {
     return new Promise((resolve, reject) => {
       // isi result hasil query select all from tabel adalah array of object yang berisi objek" setiap record di dalam tabel booking
-      db.query('SELECT * FROM booking LIMIT ? OFFSET ?', [limit, offset], (error, result) => {
-        !error ? resolve(result) : reject(new Error(error))
-      })
+      db.query(
+        'SELECT * FROM booking LIMIT ? OFFSET ?',
+        [limit, offset],
+        (error, result) => {
+          !error ? resolve(result) : reject(new Error(error))
+        }
+      )
     })
   },
 

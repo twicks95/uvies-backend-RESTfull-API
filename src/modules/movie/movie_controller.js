@@ -5,11 +5,23 @@ const movieModel = require('./movie_model')
 module.exports = {
   postMovie: async (req, res) => {
     try {
-      const { movieName, movieCategory, movieReleaseDate } = req.body
+      const {
+        movieName,
+        movieCategory,
+        movieReleaseDate,
+        movieDuration,
+        movieDirector,
+        movieCasts,
+        movieSynopsis
+      } = req.body
       const setData = {
         movie_name: movieName,
         movie_category: movieCategory,
-        movie_release_date: movieReleaseDate
+        movie_release_date: movieReleaseDate,
+        movie_duration: movieDuration,
+        movie_director: movieDirector,
+        movie_casts: movieCasts,
+        movie_synopsis: movieSynopsis
       }
       const result = await movieModel.createData(setData)
       return wrapper.response(res, 200, 'Success Create Movie', result)
@@ -20,64 +32,50 @@ module.exports = {
 
   getAllMovie: async (req, res) => {
     try {
-      // req.query = { keyword: 'an', limit: '3', offset: '0', sort: 'movie_name ASC' }
       let { page, limit, searchByName, sort } = req.query
-      // console.log({sort}) // undefined if none
-      page = parseInt(page)
-      limit = parseInt(limit)
 
+      if (!page) {
+        page = '1'
+      }
+      if (!limit) {
+        limit = '10000'
+      }
       if (!searchByName) {
         searchByName = ''
-      } else if (!sort) {
+      }
+      if (!sort) {
         sort = 'movie_id ASC'
       }
 
-      // console.log(searchByName)
-      // console.log(sort)
+      page = parseInt(page)
+      limit = parseInt(limit)
+      let offset = 0
 
-      // Proses untuk data pagination
-      const totalData = await movieModel.getDataCount()
-      const totalPage = Math.ceil(totalData / limit)
-      const offset = page * limit - limit
-      const pageInfo = pagination.pageInfo(page, totalPage, limit, totalData)
-      // end#
       const result = await movieModel.getAllData(
         searchByName,
         sort,
         limit,
         offset
       )
-      // console.log(result)
 
-      if (searchByName && sort === 'movie_id ASC') {
+      // Proses untuk data pagination
+      const totalData = await result.length
+      const totalPage = Math.ceil(totalData / limit)
+      offset = page * limit - limit
+      const pageInfo = pagination.pageInfo(page, totalPage, limit, totalData)
+
+      if (result.length < 1) {
         return wrapper.response(
           res,
           200,
-          `Success Get All Movie By Keyword ${searchByName}`,
-          result,
-          pageInfo
+          `No Movie Matched By Keyword '${searchByName}'`,
+          result
         )
-      } else if (
-        (searchByName && sort === 'movie_name ASC') ||
-        sort === 'movie_name DESC'
-      ) {
-        sort = sort.split(' ')
+      } else if (searchByName && result.length > 0) {
         return wrapper.response(
           res,
           200,
-          `Success Get All Movie Keyword = '${searchByName}' and Ordered By ${sort[0]} ${sort[1]}`,
-          result,
-          pageInfo
-        )
-      } else if (
-        (searchByName && sort === 'movie_release_date ASC') ||
-        sort === 'movie_release_date DESC'
-      ) {
-        sort = sort.split(' ')
-        return wrapper.response(
-          res,
-          200,
-          `Success Get All Movie Keyword = '${searchByName}' and Ordered By ${sort[0]} ${sort[1]}`,
+          `Success Get All Movie By Keyword '${searchByName}'`,
           result,
           pageInfo
         )
@@ -125,8 +123,18 @@ module.exports = {
         movie_release_date: movieReleaseDate,
         movie_updated_at: new Date(Date.now())
       }
-      const result = await movieModel.updateData(setData, id)
-      return wrapper.response(res, 200, 'Success Update Movie', result)
+      const dataToUpdate = await movieModel.getDataById(id)
+
+      if (dataToUpdate.length > 0) {
+        const result = await movieModel.updateData(setData, id)
+        return wrapper.response(res, 200, 'Success Update Movie', result)
+      } else {
+        return wrapper.response(
+          res,
+          404,
+          'Failed! No Data With Id ' + id + ' To Be Updated'
+        )
+      }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
     }
@@ -136,7 +144,6 @@ module.exports = {
     try {
       const { id } = req.params
       const dataToDelete = await movieModel.getDataById(id)
-      console.log(dataToDelete)
 
       if (dataToDelete.length > 0) {
         await movieModel.deleteData(id)

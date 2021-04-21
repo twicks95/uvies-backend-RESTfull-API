@@ -53,8 +53,14 @@ module.exports = {
         premiere_price: premierePrice,
         premiere_updated_at: new Date(Date.now())
       }
-      const result = await premiereModel.updateData(setData, id)
-      return wrapper.response(res, 200, 'Success Update Data Premiere', result)
+      const dataToUpdate = await premiereModel.getDataById(id)
+
+      if (dataToUpdate.length > 0) {
+        const result = await premiereModel.updateData(setData, id)
+        return wrapper.response(res, 200, 'Success Update Data Premiere', result)
+      } else {
+        return wrapper.response(res, 404, 'Failed! No Data With Id ' + id + ' To Be Updated')
+      }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
     }

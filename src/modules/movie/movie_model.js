@@ -4,8 +4,8 @@ module.exports = {
   getAllData: (searchKeyword, order, limit, offset) => {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT * FROM movie WHERE movie_name LIKE "%"?"%" ORDER BY ${order} LIMIT ? OFFSET ?`,
-        [searchKeyword, limit, offset],
+        `SELECT * FROM movie WHERE movie_name LIKE "%"?"%" ORDER BY ${order} LIMIT ${limit} OFFSET ?`,
+        [searchKeyword, offset],
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))
         }

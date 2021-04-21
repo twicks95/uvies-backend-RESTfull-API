@@ -38,10 +38,15 @@ module.exports = {
         schedule_clock: scheduleClock,
         schedule_updated_at: new Date(Date.now())
       }
-      console.log(id)
-      console.log(setData)
-      const result = await scheduleModel.updateData(setData, id)
-      return wrapper.response(res, 200, 'Success Update Data Schedule', result)
+
+      const dataToUpdate = await scheduleModel.getDataById(id)
+
+      if (dataToUpdate.length > 0) {
+        const result = await scheduleModel.updateData(setData, id)
+        return wrapper.response(res, 200, 'Success Update Data Schedule', result)
+      } else {
+        return wrapper.response(res, 404, 'Failed! No Data With Id ' + id + ' To Be Updated')
+      }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
     }
