@@ -30,7 +30,10 @@
 Open .env file on your favorite code editor, and copy paste this code below :
 
 ```
-DB_HOST=localhost // Database host
+DB_HOST = localhost // Database host
+DB_USER = root
+DB_PASS =
+PORT = 3001
 ```
 
 ## License
