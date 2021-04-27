@@ -8,10 +8,10 @@ module.exports = {
     let token = req.headers.authorization
 
     if (token) {
-      // proses split untuk mendapatkan angka tokennya saja
+      // split req.headers.authorization to get token
       token = token.split(' ')[1]
 
-      // proses validasi token
+      // token validation
       jwt.verify(token, 'RAHASIA', (error, result) => {
         if (
           (error && error.name === 'JsonWebTokenError') ||
@@ -23,23 +23,17 @@ module.exports = {
           next()
         }
       })
-
-      // next()
     } else {
       return wrapper.response(res, 403, 'Please login first!')
     }
   },
 
   isAdmin: (req, res, next) => {
-    console.log('MiddleWare isAdmin running')
-    console.log(req.decodeToken)
-
-    // cek kondisi apakah user admin atau bukan
-    // if (conditionCheckuser) {
-    //   next()
-    // } else {
-
-    // }
-    next()
+    // authorization user role
+    if (req.decodeToken.user_role === 1) {
+      next()
+    } else {
+      return wrapper.response(res, 403, 'Access Denied')
+    }
   }
 }
