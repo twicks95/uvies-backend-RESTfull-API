@@ -18,11 +18,14 @@ module.exports = {
         movie_name: movieName,
         movie_category: movieCategory,
         movie_release_date: movieReleaseDate,
+        movie_poster: req.file ? req.file.filename : '',
         movie_duration: movieDuration,
         movie_director: movieDirector,
         movie_casts: movieCasts,
         movie_synopsis: movieSynopsis
       }
+
+      // console.log(setData)
       const result = await movieModel.createData(setData)
       return wrapper.response(res, 200, 'Success Create Movie', result)
     } catch (error) {
@@ -34,18 +37,10 @@ module.exports = {
     try {
       let { page, limit, searchByName, sort } = req.query
 
-      if (!page) {
-        page = '1'
-      }
-      if (!limit) {
-        limit = '10000'
-      }
-      if (!searchByName) {
-        searchByName = ''
-      }
-      if (!sort) {
-        sort = 'movie_id ASC'
-      }
+      page = !page ? '1' : page
+      limit = !limit ? 10000 : limit
+      searchByName = !searchByName ? '' : searchByName
+      sort = !sort ? 'movie_id ASC' : sort
 
       page = parseInt(page)
       limit = parseInt(limit)
@@ -59,7 +54,12 @@ module.exports = {
       )
 
       // Proses untuk data pagination
-      const totalData = await result.length
+      const sortForQueryCount = sort.split(' ')
+      console.log(sortForQueryCount)
+      const table =
+        sortForQueryCount[0] === 'movie_id' ? 'movie_name' : 'movie_name'
+
+      const totalData = await movieModel.getDataCount(table, searchByName)
       const totalPage = Math.ceil(totalData / limit)
       offset = page * limit - limit
       const pageInfo = pagination.pageInfo(page, totalPage, limit, totalData)
@@ -113,14 +113,59 @@ module.exports = {
     }
   },
 
+  getUpcomingMovieByMonth: async (req, res) => {
+    try {
+      let { month, limit } = req.params
+
+      limit = !limit ? 1000 : parseInt(limit)
+
+      const result = await movieModel.getDataByMonthForUpcomingMovie(
+        month,
+        limit
+      )
+
+      if (result.length > 0) {
+        return wrapper.response(
+          res,
+          200,
+          'Success Get Upcoming Movie By Month',
+          result
+        )
+      } else if (result.length === 0) {
+        return wrapper.response(
+          res,
+          200,
+          'Success Get Upcoming Movie By Month',
+          []
+        )
+      } else {
+        return wrapper.response(res, 200, 'Not Found', null)
+      }
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error)
+    }
+  },
+
   updateMovie: async (req, res) => {
     try {
       const { id } = req.params
-      const { movieName, movieCategory, movieReleaseDate } = req.body
+      const {
+        movieName,
+        movieCategory,
+        movieDuration,
+        movieDirector,
+        movieCasts,
+        movieSynopsis,
+        movieReleaseDate
+      } = req.body
       const setData = {
         movie_name: movieName,
         movie_category: movieCategory,
         movie_release_date: movieReleaseDate,
+        movie_duration: movieDuration,
+        movie_director: movieDirector,
+        movie_casts: movieCasts,
+        movie_synopsis: movieSynopsis,
         movie_updated_at: new Date(Date.now())
       }
       const dataToUpdate = await movieModel.getDataById(id)

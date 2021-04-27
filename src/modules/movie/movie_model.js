@@ -13,11 +13,15 @@ module.exports = {
     })
   },
 
-  getDataCount: () => {
+  getDataCount: (table, searchKeyword) => {
     return new Promise((resolve, reject) => {
-      db.query('SELECT COUNT(*) AS total FROM movie', (error, result) => {
-        !error ? resolve(result[0].total) : reject(new Error(error))
-      })
+      db.query(
+        `SELECT COUNT(*) AS total FROM movie WHERE ${table} LIKE "%"?"%"`,
+        searchKeyword,
+        (error, result) => {
+          !error ? resolve(result[0].total) : reject(new Error(error))
+        }
+      )
     })
   },
 
@@ -26,6 +30,18 @@ module.exports = {
       db.query(
         'SELECT * FROM movie WHERE movie_id = ?',
         id,
+        (error, result) => {
+          !error ? resolve(result) : reject(new Error(error))
+        }
+      )
+    })
+  },
+
+  getDataByMonthForUpcomingMovie: (month, limit) => {
+    return new Promise((resolve, reject) => {
+      db.query(
+        'SELECT * FROM movie WHERE MONTH(movie_release_date) = ? AND YEAR(movie_release_date) >= YEAR(NOW()) ORDER BY movie_release_date ASC LIMIT ?',
+        [month, limit],
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))
         }
