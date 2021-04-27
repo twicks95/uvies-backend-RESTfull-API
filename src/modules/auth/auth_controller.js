@@ -15,6 +15,7 @@ module.exports = {
       const checkingUserEmail = await authModel.getDataConditions({
         user_email: userEmail
       })
+      // check userName availability
       const checkingUserName = await authModel.getDataConditions({
         user_name: userName
       })
@@ -72,7 +73,7 @@ module.exports = {
           // remove object's property using delete
           delete payLoad.user_password
 
-          // token creating process
+          // token signature creating process
           const token = jwt.sign({ ...payLoad }, 'RAHASIA', {
             expiresIn: '24h'
           })
