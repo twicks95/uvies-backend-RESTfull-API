@@ -4,11 +4,11 @@ const jwt = require('jsonwebtoken')
 module.exports = {
   authentication: (req, res, next) => {
     // akan berisi
-    // Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ1c2VyX25hbWUiOiJ0Z3c5NSIsInVzZXJfZW1haWwiOiJzYXloYWxsby50ZWd1aEBnbWFpbC5jb20iLCJ1c2VyX2NyZWF0ZWRfYXQiOiIyMDIxLTA0LTI3VDA1OjA2OjQyLjAwMFoiLCJ1c2VyX3VwZGF0ZWRfYXQiOm51bGwsImlhdCI
+    // Bearer tokenSignature
     let token = req.headers.authorization
 
     if (token) {
-      // split req.headers.authorization to get token
+      // split req.headers.authorization to get token signature
       token = token.split(' ')[1]
 
       // token validation
