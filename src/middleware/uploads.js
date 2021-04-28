@@ -13,9 +13,9 @@ const storage = multer.diskStorage({
 })
 
 const fileFilter = (req, file, cb) => {
-  const listExt = ['.jpg', '.png']
+  const extList = ['.jpg', '.jpeg', '.png']
   const ext = path.extname(file.originalname).toLowerCase()
-  if (listExt.includes(ext)) {
+  if (extList.includes(ext)) {
     cb(null, true)
   } else {
     cb(new Error('Extensi file must be jpg/png'), false)
