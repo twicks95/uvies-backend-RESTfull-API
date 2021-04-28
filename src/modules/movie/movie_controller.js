@@ -1,3 +1,7 @@
+const fs = require('fs')
+const redis = require('redis')
+const client = redis.createClient()
+
 const wrapper = require('../../helpers/wrapper')
 const pagination = require('../../helpers/pagination')
 const movieModel = require('./movie_model')
@@ -65,6 +69,11 @@ module.exports = {
       const pageInfo = pagination.pageInfo(page, totalPage, limit, totalData)
 
       if (result.length < 1) {
+        client.setex(
+          `getallmovie:${JSON.stringify(req.query)}`,
+          3600,
+          JSON.stringify({ result, pageInfo })
+        )
         return wrapper.response(
           res,
           200,
@@ -72,6 +81,11 @@ module.exports = {
           result
         )
       } else if (searchByName && result.length > 0) {
+        client.setex(
+          `getallmovie:${JSON.stringify(req.query)}`,
+          3600,
+          JSON.stringify({ result, pageInfo })
+        )
         return wrapper.response(
           res,
           200,
@@ -80,6 +94,11 @@ module.exports = {
           pageInfo
         )
       } else {
+        client.setex(
+          `getallmovie:${JSON.stringify(req.query)}`,
+          3600,
+          JSON.stringify({ result, pageInfo })
+        )
         return wrapper.response(
           res,
           200,
@@ -99,6 +118,10 @@ module.exports = {
       const result = await movieModel.getDataById(id)
 
       if (result.length > 0) {
+        // menyimpan data ke dalam redis
+        client.set(`getmovie:${id}`, JSON.stringify(result))
+        // =============================
+
         return wrapper.response(res, 200, 'Success Get Movie By Id', result)
       } else {
         return wrapper.response(
@@ -191,6 +214,9 @@ module.exports = {
       const dataToDelete = await movieModel.getDataById(id)
 
       if (dataToDelete.length > 0) {
+        const imageToDelete = dataToDelete[0].movie_poster
+        fs.unlinkSync(`src/uploads/${imageToDelete}`)
+
         await movieModel.deleteData(id)
         return wrapper.response(res, 200, 'Success Delete Movie', dataToDelete)
       } else {
