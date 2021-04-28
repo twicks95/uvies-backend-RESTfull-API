@@ -22,7 +22,11 @@ const fileFilter = (req, file, cb) => {
   }
 }
 
-const upload = multer({ storage, fileFilter }).single('moviePoster')
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 500000 }
+}).single('moviePoster')
 
 const uploadFilter = (req, res, next) => {
   upload(req, res, function (err) {
@@ -33,8 +37,8 @@ const uploadFilter = (req, res, next) => {
       // An unknown error occurred when uploading.
       return wrapper.response(res, 401, err.message, null)
     }
-    next()
     // Everything went fine.
+    next()
   })
 }
 
