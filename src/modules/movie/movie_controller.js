@@ -18,6 +18,7 @@ module.exports = {
         movieCasts,
         movieSynopsis
       } = req.body
+
       const setData = {
         movie_name: movieName,
         movie_category: movieCategory,
@@ -181,10 +182,12 @@ module.exports = {
         movieSynopsis,
         movieReleaseDate
       } = req.body
+
       const setData = {
         movie_name: movieName,
         movie_category: movieCategory,
         movie_release_date: movieReleaseDate,
+        movie_poster: req.file ? req.file.filename : '',
         movie_duration: movieDuration,
         movie_director: movieDirector,
         movie_casts: movieCasts,
@@ -194,6 +197,9 @@ module.exports = {
       const dataToUpdate = await movieModel.getDataById(id)
 
       if (dataToUpdate.length > 0) {
+        const imageToDelete = dataToUpdate[0].movie_poster
+        fs.unlinkSync(`src/uploads/${imageToDelete}`)
+
         const result = await movieModel.updateData(setData, id)
         return wrapper.response(res, 200, 'Success Update Movie', result)
       } else {
