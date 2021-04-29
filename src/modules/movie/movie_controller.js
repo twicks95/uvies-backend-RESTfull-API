@@ -61,7 +61,13 @@ module.exports = {
 
       const totalData = await movieModel.getDataCount(searchByName)
       const totalPage = Math.ceil(totalData / limit)
-      const pageInfo = pagination.pageInfo(page, totalPage, limit, totalData, offset)
+      const pageInfo = pagination.pageInfo(
+        page,
+        totalPage,
+        limit,
+        totalData,
+        offset
+      )
 
       if (result.length < 1) {
         client.setex(
@@ -69,12 +75,7 @@ module.exports = {
           3600,
           JSON.stringify({ result, pageInfo })
         )
-        return wrapper.response(
-          res,
-          200,
-          `No Movie Matched By Keyword '${searchByName}'`,
-          result
-        )
+        return wrapper.response(res, 404, 'Movie Not Found', result)
       } else if (searchByName && result.length > 0) {
         client.setex(
           `getallmovie:${JSON.stringify(req.query)}`,
