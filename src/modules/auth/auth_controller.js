@@ -118,5 +118,15 @@ module.exports = {
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
     }
+  },
+
+  deleteUser: async (req, res) => {
+    try {
+      const { id } = req.params
+      const result = await authModel.deleteUser(id)
+      return wrapper.response(res, 200, 'Success Delete User', result)
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error)
+    }
   }
 }
