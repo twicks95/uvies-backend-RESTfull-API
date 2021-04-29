@@ -18,7 +18,7 @@ const fileFilter = (req, file, cb) => {
   if (extList.includes(ext)) {
     cb(null, true)
   } else {
-    cb(new Error('Extensi file must be jpg/png'), false)
+    cb(new Error('File extension must be jpg, jpeg, or png'), false)
   }
 }
 
