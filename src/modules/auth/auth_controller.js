@@ -2,7 +2,6 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-//
 const wrapper = require('../../helpers/wrapper')
 const authModel = require('./auth_model')
 
@@ -15,22 +14,10 @@ module.exports = {
       const checkingUserEmail = await authModel.getDataConditions({
         user_email: userEmail
       })
-      // check userName availability
-      const checkingUserName = await authModel.getDataConditions({
-        user_name: userName
-      })
 
-      // If checkingUserName returned an object within array
-      if (checkingUserEmail.length > 0 && checkingUserName.length > 0) {
-        return wrapper.response(res, 409, 'Email and Username Already Exist')
-      } else if (checkingUserEmail.length > 0) {
+      // If checkingEmail returned an object within array
+      if (checkingUserEmail.length > 0) {
         return wrapper.response(res, 409, 'Email Has Been Registered')
-      } else if (checkingUserName.length > 0) {
-        return wrapper.response(
-          res,
-          409,
-          'Username Already Used and Has Been Registered'
-        )
       } else {
         // password encrypting process
         const salt = bcrypt.genSaltSync(10)
@@ -39,12 +26,13 @@ module.exports = {
         const setData = {
           user_name: userName,
           user_email: userEmail,
-          user_password: encryptedPassword
+          user_password: encryptedPassword,
+          user_role: 'user'
         }
 
         const result = await authModel.register(setData)
         delete result.user_password
-        return wrapper.response(res, 200, 'Success Register User', result)
+        return wrapper.response(res, 200, 'Success Create New User', result)
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
@@ -86,6 +74,47 @@ module.exports = {
       } else {
         return wrapper.response(res, 404, 'Email / Account Not Found')
       }
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error)
+    }
+  },
+
+  updateUser: async (req, res) => {
+    try {
+      const { id } = req.params
+      const {
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        changePassword
+      } = req.body
+
+      let setData
+      if (!changePassword) {
+        setData = {
+          user_name: `${firstName} ${lastName}`,
+          user_email: email,
+          user_phone_number: phoneNumber,
+          user_updated_at: new Date(Date.now())
+        }
+      } else {
+        // password encrypting process
+        const salt = bcrypt.genSaltSync(10)
+        const encryptedPassword = bcrypt.hashSync(changePassword, salt)
+
+        setData = {
+          user_name: `${firstName} ${lastName}`,
+          user_email: email,
+          user_password: encryptedPassword,
+          user_phone_number: phoneNumber,
+          user_updated_at: new Date(Date.now())
+        }
+      }
+
+      const result = await authModel.updateUser(setData, id)
+      delete result.user_password
+      return wrapper.response(res, 200, 'Success Update User Data', result)
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
     }
