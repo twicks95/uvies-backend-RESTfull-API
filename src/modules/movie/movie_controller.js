@@ -43,13 +43,14 @@ module.exports = {
       let { page, limit, searchByName, sort } = req.query
 
       page = !page ? '1' : page
-      limit = !limit ? 10000 : limit
+      limit = !limit ? '1000' : limit
       searchByName = !searchByName ? '' : searchByName
       sort = !sort ? 'movie_id ASC' : sort
 
       page = parseInt(page)
       limit = parseInt(limit)
       let offset = 0
+      offset = page * limit - limit
 
       const result = await movieModel.getAllData(
         searchByName,
@@ -58,15 +59,9 @@ module.exports = {
         offset
       )
 
-      // Proses untuk data pagination
-      const sortForQueryCount = sort.split(' ')
-      const table =
-        sortForQueryCount[0] === 'movie_id' ? 'movie_name' : 'movie_name'
-
-      const totalData = await movieModel.getDataCount(table, searchByName)
+      const totalData = await movieModel.getDataCount(searchByName)
       const totalPage = Math.ceil(totalData / limit)
-      offset = page * limit - limit
-      const pageInfo = pagination.pageInfo(page, totalPage, limit, totalData)
+      const pageInfo = pagination.pageInfo(page, totalPage, limit, totalData, offset)
 
       if (result.length < 1) {
         client.setex(

@@ -4,8 +4,8 @@ module.exports = {
   getAllData: (searchKeyword, order, limit, offset) => {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT * FROM movie WHERE movie_name LIKE "%"?"%" ORDER BY ${order} LIMIT ${limit} OFFSET ?`,
-        [searchKeyword, offset],
+        `SELECT * FROM movie WHERE movie_name LIKE "%"?"%" ORDER BY ${order} LIMIT ? OFFSET ?`,
+        [searchKeyword, limit, offset],
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))
         }
@@ -13,10 +13,10 @@ module.exports = {
     })
   },
 
-  getDataCount: (table, searchKeyword) => {
+  getDataCount: (searchKeyword) => {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT COUNT(*) AS total FROM movie WHERE ${table} LIKE "%"?"%"`,
+        'SELECT COUNT(*) AS total FROM movie WHERE movie_name LIKE "%"?"%"',
         searchKeyword,
         (error, result) => {
           !error ? resolve(result[0].total) : reject(new Error(error))
