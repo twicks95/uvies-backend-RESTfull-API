@@ -60,7 +60,6 @@ module.exports = {
 
       // Proses untuk data pagination
       const sortForQueryCount = sort.split(' ')
-      console.log(sortForQueryCount)
       const table =
         sortForQueryCount[0] === 'movie_id' ? 'movie_name' : 'movie_name'
 
@@ -194,11 +193,17 @@ module.exports = {
         movie_synopsis: movieSynopsis,
         movie_updated_at: new Date(Date.now())
       }
-      const dataToUpdate = await movieModel.getDataById(id)
 
+      const dataToUpdate = await movieModel.getDataById(id)
       if (dataToUpdate.length > 0) {
         const imageToDelete = dataToUpdate[0].movie_poster
-        fs.unlinkSync(`src/uploads/${imageToDelete}`)
+        const isImageExist = fs.existsSync(`src/uploads/${imageToDelete}`)
+
+        if (isImageExist) {
+          fs.unlink(`src/uploads/${imageToDelete}`, (err) => {
+            if (err) throw err
+          })
+        }
 
         const result = await movieModel.updateData(setData, id)
         return wrapper.response(res, 200, 'Success Update Movie', result)
@@ -221,7 +226,13 @@ module.exports = {
 
       if (dataToDelete.length > 0) {
         const imageToDelete = dataToDelete[0].movie_poster
-        fs.unlinkSync(`src/uploads/${imageToDelete}`)
+        const isImageExist = fs.existsSync(`src/uploads/${imageToDelete}`)
+
+        if (isImageExist) {
+          fs.unlink(`src/uploads/${imageToDelete}`, (err) => {
+            if (err) throw err
+          })
+        }
 
         await movieModel.deleteData(id)
         return wrapper.response(res, 200, 'Success Delete Movie', dataToDelete)
