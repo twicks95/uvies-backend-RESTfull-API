@@ -3,7 +3,7 @@ const route = express.Router()
 
 const movieController = require('./movie_controller')
 
-const authMiddleWare = require('../../middleware/auth')
+const authMiddleware = require('../../middleware/auth')
 const redisMiddleware = require('../../middleware/redis')
 const uploadFile = require('../../middleware/uploads')
 
@@ -16,24 +16,24 @@ route.get(
 route.get('/upcoming/:month', movieController.getUpcomingMovieByMonth)
 route.post(
   '/',
-  authMiddleWare.authentication,
-  authMiddleWare.isAdmin,
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
   uploadFile,
   redisMiddleware.clearDataMovieRedis,
   movieController.postMovie
 )
 route.patch(
   '/:id',
-  authMiddleWare.authentication,
-  authMiddleWare.isAdmin,
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
   uploadFile,
   redisMiddleware.clearDataMovieRedis,
   movieController.updateMovie
 )
 route.delete(
   '/:id',
-  authMiddleWare.authentication,
-  authMiddleWare.isAdmin,
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
   redisMiddleware.clearDataMovieRedis,
   movieController.deleteMovie
 )
