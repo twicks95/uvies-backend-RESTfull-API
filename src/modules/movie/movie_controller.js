@@ -193,10 +193,12 @@ module.exports = {
       const dataToUpdate = await movieModel.getDataById(id)
       if (dataToUpdate.length > 0) {
         const imageToDelete = dataToUpdate[0].movie_poster
-        const isImageExist = fs.existsSync(`src/uploads/${imageToDelete}`)
+        const isImageExist = fs.existsSync(
+          `src/uploads/movie_poster/${imageToDelete}`
+        )
 
         if (isImageExist) {
-          fs.unlink(`src/uploads/${imageToDelete}`, (err) => {
+          fs.unlink(`src/uploads/movie_poster/${imageToDelete}`, (err) => {
             if (err) throw err
           })
         }
@@ -222,10 +224,12 @@ module.exports = {
 
       if (dataToDelete.length > 0) {
         const imageToDelete = dataToDelete[0].movie_poster
-        const isImageExist = fs.existsSync(`src/uploads/${imageToDelete}`)
+        const isImageExist = fs.existsSync(
+          `src/uploads/movie_poster/${imageToDelete}`
+        )
 
         if (isImageExist) {
-          fs.unlink(`src/uploads/${imageToDelete}`, (err) => {
+          fs.unlink(`src/uploads/movie_poster/${imageToDelete}`, (err) => {
             if (err) throw err
           })
         }
