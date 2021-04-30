@@ -18,7 +18,7 @@ route.post(
   '/',
   authMiddleware.authentication,
   authMiddleware.isAdmin,
-  uploadFile,
+  uploadFile('movie_poster'),
   redisMiddleware.clearDataMovieRedis,
   movieController.postMovie
 )
@@ -26,7 +26,7 @@ route.patch(
   '/:id',
   authMiddleware.authentication,
   authMiddleware.isAdmin,
-  uploadFile,
+  uploadFile('movie_poster'),
   redisMiddleware.clearDataMovieRedis,
   movieController.updateMovie
 )
