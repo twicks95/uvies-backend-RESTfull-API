@@ -30,7 +30,7 @@ module.exports = {
 
   isAdmin: (req, res, next) => {
     // authorization user role
-    if (req.decodeToken.user_role === 1) {
+    if (req.decodeToken.user_role === 'admin') {
       next()
     } else {
       return wrapper.response(res, 403, 'Access Denied')
