@@ -9,7 +9,7 @@ const userModel = require('./user_model')
 route.patch(
   '/:id',
   authMiddleware.authentication,
-  uploadFile,
+  uploadFile('user_profile_picture'),
   userModel.updateUser
 )
 route.delete('/:id', authMiddleware.authentication, userModel.deleteUser)
