@@ -17,11 +17,15 @@ module.exports = {
     })
   },
 
-  getAllData: (limit, offset) => {
+  getAllData: (location, movie, order, limit, offset) => {
     return new Promise((resolve, reject) => {
       db.query(
-        'SELECT * FROM premiere LIMIT ? OFFSET ?',
-        [limit, offset],
+        `SELECT * FROM premiere 
+        JOIN premiere_location ON premiere.location_id  = premiere_location.location_id 
+        JOIN movie ON premiere.movie_id = movie.movie_id
+        JOIN schedule ON premiere.premiere_id = schedule.premiere_id
+        WHERE location_city LIKE "%"?"%" AND movie_name LIKE "%"?"%" ORDER BY ? LIMIT ? OFFSET ?`,
+        [location, movie, order, limit, offset],
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))
         }
@@ -29,11 +33,15 @@ module.exports = {
     })
   },
 
-  getDataCount: () => {
+  getDataCount: (condition) => {
     return new Promise((resolve, reject) => {
-      db.query('SELECT COUNT(*) AS total FROM premiere', (error, result) => {
-        !error ? resolve(result[0].total) : reject(new Error(error))
-      })
+      db.query(
+        'SELECT COUNT(*) AS total FROM premiere WHERE ?',
+        condition,
+        (error, result) => {
+          !error ? resolve(result[0].total) : reject(new Error(error))
+        }
+      )
     })
   },
 
@@ -51,25 +59,33 @@ module.exports = {
 
   updateData: (setData, id) => {
     return new Promise((resolve, reject) => {
-      db.query('UPDATE premiere SET ? WHERE premiere_id = ?', [setData, id], (error, result) => {
-        if (!error) {
-          const newData = {
-            id: id,
-            ...setData
+      db.query(
+        'UPDATE premiere SET ? WHERE premiere_id = ?',
+        [setData, id],
+        (error, result) => {
+          if (!error) {
+            const newData = {
+              id: id,
+              ...setData
+            }
+            resolve(newData)
+          } else {
+            reject(new Error(error))
           }
-          resolve(newData)
-        } else {
-          reject(new Error(error))
         }
-      })
+      )
     })
   },
 
   deleteData: (id) => {
     return new Promise((resolve, reject) => {
-      db.query('DELETE FROM premiere WHERE premiere_id = ?', id, (error, result) => {
-        !error ? resolve(result) : reject(new Error(error))
-      })
+      db.query(
+        'DELETE FROM premiere WHERE premiere_id = ?',
+        id,
+        (error, result) => {
+          !error ? resolve(result) : reject(new Error(error))
+        }
+      )
     })
   }
 }
