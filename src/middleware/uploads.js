@@ -2,7 +2,7 @@ const multer = require('multer')
 const path = require('path')
 const wrapper = require('../helpers/wrapper')
 
-function uploadFile(uploadPath) {
+const uploadFile = (uploadPath) => {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, `src/uploads/${uploadPath}`)
