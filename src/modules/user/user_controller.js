@@ -44,7 +44,7 @@ module.exports = {
       if (dataToUpdate.length > 0) {
         const imageToDelete = dataToUpdate[0].user_profile_picture
         const isImageExist = fs.existsSync(
-          `src/uploads/uploads/user_profile_picture/${imageToDelete}`
+          `src/uploads/user_profile_picture/${imageToDelete}`
         )
 
         if (isImageExist) {
@@ -89,7 +89,7 @@ module.exports = {
       if (dataToDelete.length > 0) {
         const imageToDelete = dataToDelete[0].user_profile_picture
         const isImageExist = fs.existsSync(
-          `src/uploads/uploads/user_profile_picture/${imageToDelete}`
+          `src/uploads/user_profile_picture/${imageToDelete}`
         )
 
         if (isImageExist) {
