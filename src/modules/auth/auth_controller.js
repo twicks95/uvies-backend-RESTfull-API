@@ -49,7 +49,7 @@ module.exports = {
           from: '"Uvies" <uvies.movs@gmail.com>', // sender address
           to: result.user_email, // list of receivers
           subject: 'Uvies - Email account activation', // Subject line
-          html: `<a href="http://localhost:3001/api/v1/user/activate/${result.id}">Click this link</a><b> to activate your account.</b>` // html body
+          html: `<a href="http://${process.env.DB_HOST}:${process.env.PORT}/api/v1/user/activate/${result.id}">Click this link</a><b> to activate your account.</b>` // html body
         })
 
         transporter.sendMail(mailOptions, function (error, info) {
