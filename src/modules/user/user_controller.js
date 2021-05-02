@@ -85,23 +85,32 @@ module.exports = {
     try {
       const { id } = req.params
 
-      const dataToUpdate = await userModel.getUserById(id)
-      const imageToDelete = dataToUpdate[0].user_profile_picture
-      const isImageExist = fs.existsSync(
-        `src/uploads/uploads/user_profile_picture/${imageToDelete}`
-      )
+      const dataToDelete = await userModel.getUserById(id)
+      if (dataToDelete.length > 0) {
+        const imageToDelete = dataToDelete[0].user_profile_picture
+        const isImageExist = fs.existsSync(
+          `src/uploads/uploads/user_profile_picture/${imageToDelete}`
+        )
 
-      if (isImageExist) {
-        fs.unlink(
-          `src/uploads/user_profile_picture/${imageToDelete}`,
-          (err) => {
-            if (err) throw err
-          }
+        if (isImageExist) {
+          fs.unlink(
+            `src/uploads/user_profile_picture/${imageToDelete}`,
+            (err) => {
+              if (err) throw err
+            }
+          )
+        }
+
+        await userModel.deleteUser(id)
+        return wrapper.response(res, 200, 'Success Delete User', dataToDelete)
+      } else {
+        return wrapper.response(
+          res,
+          404,
+          'Failed! No Data With Id ' + id + ' To Be Deleted',
+          null
         )
       }
-
-      const result = await userModel.deleteUser(id)
-      return wrapper.response(res, 200, 'Success Delete User', result)
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
     }
