@@ -7,7 +7,6 @@ module.exports = {
     const { id } = req.params
     client.get(`getmovie:${id}`, (error, result) => {
       if (!error && result != null) {
-        // console.log('Data ada di redis')
         return wrapper.response(
           res,
           200,
@@ -15,7 +14,6 @@ module.exports = {
           JSON.parse(result)
         )
       } else {
-        // console.log('Tidak ada di redis')
         next()
       }
     })
@@ -25,8 +23,7 @@ module.exports = {
     client.get(`getallmovie:${JSON.stringify(req.query)}`, (error, result) => {
       if (!error && result != null) {
         console.log('Data ada di redis')
-        const newResult = JSON.parse(result) // {data, pagination}
-        // console.log(newResult.result)
+        const newResult = JSON.parse(result)
         return wrapper.response(
           res,
           200,
@@ -42,9 +39,7 @@ module.exports = {
   },
 
   clearDataMovieRedis: (req, res, next) => {
-    // cari kunci yang berawalan getmovie
     client.keys('getallmovie*', (_error, result) => {
-      // console.log(result)
       if (result.length > 0) {
         result.forEach((item) => {
           client.del(item)
