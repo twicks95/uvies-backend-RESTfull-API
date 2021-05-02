@@ -1,6 +1,8 @@
 // Core modules
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const nodemailer = require('nodemailer')
+require('dotenv').config()
 
 const wrapper = require('../../helpers/wrapper')
 const authModel = require('./auth_model')
@@ -32,6 +34,34 @@ module.exports = {
 
         const result = await authModel.register(setData)
         delete result.user_password
+
+        const transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false, // true for 465, false for other ports
+          auth: {
+            user: process.env.SMTP_EMAIL, // generated ethereal user
+            pass: process.env.SMTP_PASSWORD // generated ethereal password
+          }
+        })
+
+        const mailOptions = await transporter.sendMail({
+          from: '"Uvies" <uvies.movs@gmail.com>', // sender address
+          to: result.user_email, // list of receivers
+          subject: 'Uvies - Email account activation', // Subject line
+          html: `<a href="http://localhost:3001/api/v1/user/activate/${result.id}">Click this link</a><b> to activate your account.</b>` // html body
+        })
+
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (!error) {
+            console.log('Email sent: ' + info.response)
+            return wrapper.response(res, 200, 'Success Register User')
+          } else {
+            console.log(error)
+            return wrapper.response(res, 400, 'Failed To Send Email')
+          }
+        })
+
         return wrapper.response(res, 200, 'Success Create New User', result)
       }
     } catch (error) {
