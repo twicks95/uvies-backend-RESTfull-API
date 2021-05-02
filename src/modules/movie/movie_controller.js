@@ -30,7 +30,6 @@ module.exports = {
         movie_synopsis: movieSynopsis
       }
 
-      // console.log(setData)
       const result = await movieModel.createData(setData)
       return wrapper.response(res, 200, 'Success Create Movie', result)
     } catch (error) {
@@ -40,24 +39,17 @@ module.exports = {
 
   getAllMovie: async (req, res) => {
     try {
-      let { page, limit, searchByName, sort } = req.query
-
-      page = !page ? '1' : page
-      limit = !limit ? '1000' : limit
-      searchByName = !searchByName ? '' : searchByName
-      sort = !sort ? 'movie_id ASC' : sort
+      let {
+        page = '1',
+        limit = '100',
+        searchByName = '',
+        sort = 'movie_id ASC'
+      } = req.query
 
       page = parseInt(page)
       limit = parseInt(limit)
       let offset = 0
       offset = page * limit - limit
-
-      const result = await movieModel.getAllData(
-        searchByName,
-        sort,
-        limit,
-        offset
-      )
 
       const totalData = await movieModel.getDataCount(searchByName)
       const totalPage = Math.ceil(totalData / limit)
@@ -66,6 +58,13 @@ module.exports = {
         totalPage,
         limit,
         totalData,
+        offset
+      )
+
+      const result = await movieModel.getAllData(
+        searchByName,
+        sort,
+        limit,
         offset
       )
 
@@ -154,11 +153,11 @@ module.exports = {
         return wrapper.response(
           res,
           200,
-          'Success Get Upcoming Movie By Month',
+          'No Upcoming Movie For This Month',
           []
         )
       } else {
-        return wrapper.response(res, 200, 'Not Found', null)
+        return wrapper.response(res, 404, 'Not Found', null)
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
