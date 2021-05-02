@@ -6,9 +6,10 @@ const bookingModel = require('./booking_model')
 module.exports = {
   postBooking: async (req, res) => {
     try {
-      // proses destructuring ini untuk mengeluarkan nilai dari objek hasil req.body
       const {
-        premiereID,
+        userId,
+        premiereId,
+        scheduleId,
         bookingTicket,
         bookingTotalPrice,
         bookingPaymentMethod,
@@ -16,16 +17,19 @@ module.exports = {
         bookingSeat
       } = req.body
 
-      // karena query di model membutuhkan beberapa data yang dibutuhkan untuk proses insert, maka dibuatlah objek setData untuk menampung nilai dari tiap" property dari req.body ke masing" property yang memiliki nama sesuai dengan nama kolom yang ada di tabel booking database
       const setDataBooking = {
-        premiere_id: premiereID,
+        user_id: userId,
+        premiere_id: premiereId,
+        schedule_id: scheduleId,
         booking_ticket: bookingTicket,
         booking_total_price: bookingTotalPrice,
         booking_payment_method: bookingPaymentMethod,
         booking_status: bookingStatus
       }
 
-      const bookingResult = await bookingModel.createDataToBooking(setDataBooking)
+      const bookingResult = await bookingModel.createDataToBooking(
+        setDataBooking
+      )
 
       await bookingSeat.forEach((element) => {
         const setDataBookingSeat = {
