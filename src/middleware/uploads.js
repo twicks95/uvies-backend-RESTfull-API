@@ -2,13 +2,12 @@ const multer = require('multer')
 const path = require('path')
 const wrapper = require('../helpers/wrapper')
 
-function uploadFile (uploadPath) {
+function uploadFile(uploadPath) {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, `src/uploads/${uploadPath}`)
     },
     filename: function (req, file, cb) {
-      // console.log(file)
       cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname)
     }
   })
@@ -27,7 +26,7 @@ function uploadFile (uploadPath) {
     storage,
     fileFilter,
     limits: { fileSize: 500000 }
-  }).single(uploadPath === 'movie_poster' ? 'moviePoster' : 'profilePicture')
+  }).single('image')
 
   const uploadFilter = (req, res, next) => {
     upload(req, res, function (err) {
