@@ -47,7 +47,7 @@ module.exports = {
           `src/uploads/user_profile_picture/${imageToDelete}`
         )
 
-        if (isImageExist) {
+        if (isImageExist && imageToDelete) {
           fs.unlink(
             `src/uploads/user_profile_picture/${imageToDelete}`,
             (err) => {
