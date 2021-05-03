@@ -1,7 +1,7 @@
-// const wrapper = require('../../helpers/wrapper')
+const bookingModel = require('./booking_model')
+const premiereModel = require('../premiere/premiere_model')
 const pagination = require('../../helpers/pagination')
 const wrapper = require('../../helpers/wrapper')
-const bookingModel = require('./booking_model')
 
 module.exports = {
   postBooking: async (req, res) => {
@@ -17,9 +17,15 @@ module.exports = {
         bookingSeat
       } = req.body
 
+      const getPremiere = await premiereModel.getDataById(premiereId)
+      const movieId = getPremiere[0].movie_id
+      const locationId = getPremiere[0].location_id
+
       const setDataBooking = {
         user_id: userId,
+        movie_id: movieId,
         premiere_id: premiereId,
+        location_id: locationId,
         schedule_id: scheduleId,
         booking_ticket: bookingTicket,
         booking_total_price: bookingTotalPrice,
@@ -46,13 +52,22 @@ module.exports = {
 
   getAllBooking: async (req, res) => {
     try {
-      let { page, limit } = req.query
+      let { page = '1', limit = '100' } = req.query
+
       page = parseInt(page)
       limit = parseInt(limit)
       const totalData = await bookingModel.getDataCount()
       const totalPage = Math.ceil(totalData / limit)
-      const offset = page * limit - limit
-      const pageInfo = pagination.pageInfo(page, totalPage, limit, totalData)
+      let offset = 0
+      offset = page * limit - limit
+      const pageInfo = pagination.pageInfo(
+        page,
+        totalPage,
+        limit,
+        totalData,
+        offset
+      )
+
       const result = await bookingModel.getAllData(limit, offset)
       return wrapper.response(
         res,
