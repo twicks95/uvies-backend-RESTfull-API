@@ -34,6 +34,10 @@ DB_HOST = localhost // Database host
 DB_USER = root
 DB_PASS =
 PORT = 3001
+DB_NAME = uvies_app
+
+SMTP_EMAIL = sender_email
+SMTP_PASSWORD = sender_email_password
 ```
 
 ## License
