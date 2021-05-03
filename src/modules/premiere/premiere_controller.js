@@ -62,7 +62,7 @@ module.exports = {
         date = '',
         location = '',
         movie = '',
-        order,
+        order = 'premiere_id ASC',
         page = '1',
         limit = '100'
       } = req.query
