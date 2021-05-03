@@ -6,17 +6,52 @@ const scheduleModel = require('../schedule/schedule_model')
 module.exports = {
   postPremiere: async (req, res) => {
     try {
-      const { movieID, locationID, premiereName, premierePrice } = req.body
-      const setData = {
+      const {
+        movieID,
+        locationID,
+        premiereName,
+        premierePrice,
+        scheduleDateStart,
+        scheduleDateEnd,
+        scheduleClock = ['08:30:00', '10:00:00', '14:00:00', '18:00:00']
+      } = req.body
+
+      const setDataPremiere = {
         movie_id: movieID,
         location_id: locationID,
         premiere_name: premiereName,
         premiere_price: premierePrice
       }
-      const result = await premiereModel.createData(setData)
-      return wrapper.response(res, 200, 'Success Create Data Premiere', result)
+      const resultPremiere = await premiereModel.createDataPremiere(
+        setDataPremiere
+      )
+
+      const newResultPremiere = {
+        ...resultPremiere,
+        schedule_date_start: scheduleDateStart,
+        schedule_date_end: scheduleDateEnd,
+        scheduleClock: scheduleClock
+      }
+
+      const premiereId = resultPremiere.id
+      await scheduleClock.forEach((element) => {
+        const setDataSchedule = {
+          premiere_id: premiereId,
+          schedule_date_start: scheduleDateStart,
+          schedule_date_end: scheduleDateEnd,
+          schedule_clock: element
+        }
+        premiereModel.createDataSchedule(setDataSchedule)
+      })
+
+      return wrapper.response(
+        res,
+        200,
+        'Success Create Data Premiere',
+        newResultPremiere
+      )
     } catch (error) {
-      return wrapper.response(res, 400, 'Bad Request', error)
+      return wrapper.response(res, 400, 'Bad Request', error.message)
     }
   },
 
