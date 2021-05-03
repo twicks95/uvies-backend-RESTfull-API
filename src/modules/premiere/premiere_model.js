@@ -1,12 +1,27 @@
 const db = require('../../config/mysql')
 
 module.exports = {
-  createData: (setData) => {
+  createDataPremiere: (setData) => {
     return new Promise((resolve, reject) => {
       db.query('INSERT INTO premiere SET ?', setData, (error, result) => {
         if (!error) {
           const newResult = {
             id: result.insertId,
+            ...setData
+          }
+          resolve(newResult)
+        } else {
+          reject(new Error(error))
+        }
+      })
+    })
+  },
+
+  createDataSchedule: (setData) => {
+    return new Promise((resolve, reject) => {
+      db.query('INSERT INTO schedule SET ?', setData, (error, result) => {
+        if (!error) {
+          const newResult = {
             ...setData
           }
           resolve(newResult)
