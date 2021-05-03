@@ -196,7 +196,7 @@ module.exports = {
           `src/uploads/movie_poster/${imageToDelete}`
         )
 
-        if (isImageExist) {
+        if (isImageExist && imageToDelete) {
           fs.unlink(`src/uploads/movie_poster/${imageToDelete}`, (err) => {
             if (err) throw err
           })
