@@ -41,7 +41,7 @@ module.exports = {
           schedule_date_end: scheduleDateEnd,
           schedule_clock: element
         }
-        premiereModel.createDataSchedule(setDataSchedule)
+        scheduleModel.createDataSchedule(setDataSchedule)
       })
 
       return wrapper.response(
