@@ -23,7 +23,7 @@ This RESTfull API was built for every aplication that need to get or collect dat
 5. Create a database with the name uvies_app, and Import file sql to **phpmyadmin**
 6. Open Postman desktop application or Chrome web app extension you have installed before
 7. Choose HTTP Method and enter request url.(ex. localhost:3000/)
-8. You can see all the end point [here](https://documenter.getpostman.com/view/9852901/TzJoEfvL)
+8. You can see all the end point [here](https://documenter.getpostman.com/view/13803139/TzRLmr9u)
 
 ## Set up .env file
 
