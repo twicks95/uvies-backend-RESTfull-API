@@ -17,21 +17,6 @@ module.exports = {
     })
   },
 
-  createDataSchedule: (setData) => {
-    return new Promise((resolve, reject) => {
-      db.query('INSERT INTO schedule SET ?', setData, (error, result) => {
-        if (!error) {
-          const newResult = {
-            ...setData
-          }
-          resolve(newResult)
-        } else {
-          reject(new Error(error))
-        }
-      })
-    })
-  },
-
   getAllData: (condition, order, limit, offset) => {
     return new Promise((resolve, reject) => {
       db.query(
