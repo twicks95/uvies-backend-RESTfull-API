@@ -7,8 +7,23 @@ const premiereController = require('./premiere_controller')
 
 route.get('/', premiereController.getAllPremiere)
 route.get('/:id', premiereController.getAllPremiere)
-route.post('/', premiereController.postPremiere)
-route.patch('/:id', authMiddleware.isAdmin, premiereController.updatePremiere)
-route.delete('/:id', authMiddleware.isAdmin, premiereController.deletePremiere)
+route.post(
+  '/',
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
+  premiereController.postPremiere
+)
+route.patch(
+  '/:id',
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
+  premiereController.updatePremiere
+)
+route.delete(
+  '/:id',
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
+  premiereController.deletePremiere
+)
 
 module.exports = route
