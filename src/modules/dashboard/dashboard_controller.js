@@ -26,7 +26,13 @@ module.exports = {
       }
 
       const result = await dashboardModel.getEarnings(queryClause)
-      return wrapper.response(res, 200, 'Success Get Earnings', result)
+      if (result.length > 0) {
+        return wrapper.response(res, 200, 'Success Get Earnings', result)
+      } else {
+        return wrapper.response(res, 404, 'No Earnings Found', [
+          { month: 0, total: 0 }
+        ])
+      }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
     }
