@@ -68,14 +68,7 @@ module.exports = {
         offset
       )
 
-      if (result.length < 1) {
-        client.setex(
-          `getallmovie:${JSON.stringify(req.query)}`,
-          3600,
-          JSON.stringify({ result, pageInfo })
-        )
-        return wrapper.response(res, 404, 'Movie Not Found', result)
-      } else if (searchByName && result.length > 0) {
+      if (result.length > 0) {
         client.setex(
           `getallmovie:${JSON.stringify(req.query)}`,
           3600,
@@ -84,7 +77,9 @@ module.exports = {
         return wrapper.response(
           res,
           200,
-          `Success Get All Movie By Keyword '${searchByName}'`,
+          !searchByName
+            ? 'Success Get All Movie'
+            : 'Success Get Movies By Keyword',
           result,
           pageInfo
         )
@@ -94,13 +89,7 @@ module.exports = {
           3600,
           JSON.stringify({ result, pageInfo })
         )
-        return wrapper.response(
-          res,
-          200,
-          'Success Get All Movie',
-          result,
-          pageInfo
-        )
+        return wrapper.response(res, 404, 'Movie Not Found', null)
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
@@ -113,18 +102,13 @@ module.exports = {
       const result = await movieModel.getDataById(id)
 
       if (result.length > 0) {
-        // menyimpan data ke dalam redis
+        // create redis key and insert result model to redis
         client.set(`getmovie:${id}`, JSON.stringify(result))
         // =============================
 
         return wrapper.response(res, 200, 'Success Get Movie By Id', result)
       } else {
-        return wrapper.response(
-          res,
-          404,
-          'Data With Id ' + id + ' Not Found',
-          null
-        )
+        return wrapper.response(res, 404, `Not Data With Id ${id}`, null)
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
@@ -205,11 +189,7 @@ module.exports = {
         const result = await movieModel.updateData(setData, id)
         return wrapper.response(res, 200, 'Success Update Movie', result)
       } else {
-        return wrapper.response(
-          res,
-          404,
-          'Failed! No Data With Id ' + id + ' To Be Updated'
-        )
+        return wrapper.response(res, 404, 'Failed! No Data Is Updated')
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
@@ -236,12 +216,7 @@ module.exports = {
         await movieModel.deleteData(id)
         return wrapper.response(res, 200, 'Success Delete Movie', dataToDelete)
       } else {
-        return wrapper.response(
-          res,
-          404,
-          'Failed! No Data With Id ' + id + ' To Be Deleted',
-          null
-        )
+        return wrapper.response(res, 404, 'Failed! No Data Is Deleted', null)
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
