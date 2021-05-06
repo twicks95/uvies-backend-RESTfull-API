@@ -5,39 +5,17 @@ const userModel = require('./user_model')
 const wrapper = require('../../helpers/wrapper')
 
 module.exports = {
-  updateUser: async (req, res) => {
+  updateUserData: async (req, res) => {
     try {
       const { id } = req.params
-      const {
-        firstName,
-        lastName,
-        email,
-        phoneNumber,
-        changePassword
-      } = req.body
+      const { firstName, lastName, email, phoneNumber } = req.body
 
-      let setData
-      if (!changePassword) {
-        setData = {
-          user_profile_picture: req.file ? req.file.filename : '',
-          user_name: `${firstName} ${lastName}`,
-          user_email: email,
-          user_phone_number: phoneNumber,
-          user_updated_at: new Date(Date.now())
-        }
-      } else {
-        // password encrypting process
-        const salt = bcrypt.genSaltSync(10)
-        const encryptedPassword = bcrypt.hashSync(changePassword, salt)
-
-        setData = {
-          user_profile_picture: req.file ? req.file.filename : '',
-          user_name: `${firstName} ${lastName}`,
-          user_email: email,
-          user_password: encryptedPassword,
-          user_phone_number: phoneNumber,
-          user_updated_at: new Date(Date.now())
-        }
+      const setData = {
+        user_profile_picture: req.file ? req.file.filename : '',
+        user_name: `${firstName} ${lastName}`,
+        user_email: email,
+        user_phone_number: phoneNumber,
+        user_updated_at: new Date(Date.now())
       }
 
       const dataToUpdate = await userModel.getUserById(id)
@@ -60,11 +38,38 @@ module.exports = {
         delete result.user_password
         return wrapper.response(res, 200, 'Success Update User Data', result)
       } else {
+        return wrapper.response(res, 404, 'Failed! No Data Is Updated')
+      }
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error)
+    }
+  },
+
+  updateUserPassword: async (req, res) => {
+    try {
+      const { id } = req.params
+      const { newPassword } = req.body
+      const salt = bcrypt.genSaltSync(10)
+      const encryptedPassword = bcrypt.hashSync(newPassword, salt)
+
+      const setData = {
+        user_password: encryptedPassword,
+        user_updated_at: new Date(Date.now())
+      }
+
+      const dataToDelete = await userModel.getUserById(id)
+      if (dataToDelete.length > 0) {
+        const result = await userModel.updateUser(setData, id)
+        delete result.user_password
+
         return wrapper.response(
           res,
-          404,
-          'Failed! No Data With Id ' + id + ' To Be Updated'
+          200,
+          'Success Update User Password',
+          result
         )
+      } else {
+        return wrapper.response(res, 404, 'Failed! No Data Is Updated')
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
@@ -104,12 +109,7 @@ module.exports = {
         await userModel.deleteUser(id)
         return wrapper.response(res, 200, 'Success Delete User', dataToDelete)
       } else {
-        return wrapper.response(
-          res,
-          404,
-          'Failed! No Data With Id ' + id + ' To Be Deleted',
-          null
-        )
+        return wrapper.response(res, 404, 'Failed! No Data Is Deleted', null)
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
