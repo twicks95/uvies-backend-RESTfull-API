@@ -8,10 +8,16 @@ const userController = require('./user_controller')
 
 route.get('/activate/:id', userController.updateUserStatus)
 route.patch(
-  '/:id',
+  '/data/:id',
   authMiddleware.authentication,
   uploadFile('user_profile_picture'),
-  userController.updateUser
+  userController.updateUserData
+)
+route.patch(
+  '/password/:id',
+  authMiddleware.authentication,
+  uploadFile('user_profile_picture'),
+  userController.updateUserPassword
 )
 route.delete('/:id', authMiddleware.authentication, userController.deleteUser)
 
