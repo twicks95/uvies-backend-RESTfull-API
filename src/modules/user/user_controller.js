@@ -109,7 +109,7 @@ module.exports = {
         await userModel.deleteUser(id)
         return wrapper.response(res, 200, 'Success Delete User', dataToDelete)
       } else {
-        return wrapper.response(res, 404, 'Failed! No Data Is Deleted', null)
+        return wrapper.response(res, 404, 'Failed! No Data Is Deleted')
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
