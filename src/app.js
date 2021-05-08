@@ -20,7 +20,8 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 app.use('/api/v1', routerNavigation)
-app.use('/api', express.static('src/uploads'))
+app.use('/api/user-img', express.static('src/uploads/user_profile_picture'))
+app.use('/api/movie-poster', express.static('src/uploads/movie_poster'))
 
 // Menjalankan server dengan memanggil method listen yang dimiliki express
 app.listen(port, () => {
