@@ -8,7 +8,7 @@ const routerNavigation = require('./routes')
 require('dotenv').config()
 
 const app = express() // Menjalankan express
-const port = process.env.PORT || 3000
+const port = process.env.DB_PORT || 3000
 
 app.use(morgan('dev'))
 app.use(cors())
@@ -19,9 +19,15 @@ app.use(compression())
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
-app.use('/api/v1', routerNavigation)
-app.use('/api/user-img', express.static('src/uploads/user_profile_picture'))
-app.use('/api/movie-poster', express.static('src/uploads/movie_poster'))
+app.use('/backend1/api/v1', routerNavigation)
+app.use(
+  '/backend1/api/user-img',
+  express.static('src/uploads/user_profile_picture')
+)
+app.use(
+  '/backend1/api/movie-poster',
+  express.static('src/uploads/movie_poster')
+)
 
 // Menjalankan server dengan memanggil method listen yang dimiliki express
 app.listen(port, () => {
