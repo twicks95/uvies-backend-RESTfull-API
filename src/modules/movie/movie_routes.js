@@ -18,17 +18,31 @@ route.post(
   '/',
   authMiddleware.authentication,
   authMiddleware.isAdmin,
-  uploadFile('movie_poster'),
   redisMiddleware.clearDataMovieRedis,
   movieController.postMovie
+)
+route.post(
+  '/image',
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
+  uploadFile('movie_poster'),
+  redisMiddleware.clearDataMovieRedis,
+  movieController.postMovieImage
 )
 route.patch(
   '/:id',
   authMiddleware.authentication,
   authMiddleware.isAdmin,
-  uploadFile('movie_poster'),
   redisMiddleware.clearDataMovieRedis,
   movieController.updateMovie
+)
+route.patch(
+  '/image/:id',
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
+  uploadFile('movie_poster'),
+  redisMiddleware.clearDataMovieRedis,
+  movieController.updateMovieImage
 )
 route.delete(
   '/:id',
@@ -36,6 +50,13 @@ route.delete(
   authMiddleware.isAdmin,
   redisMiddleware.clearDataMovieRedis,
   movieController.deleteMovie
+)
+route.delete(
+  '/image/:id',
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
+  redisMiddleware.clearDataMovieRedis,
+  movieController.deleteMovieImage
 )
 
 module.exports = route

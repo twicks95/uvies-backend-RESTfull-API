@@ -18,21 +18,20 @@ const uploadFile = (uploadPath) => {
     if (extList.includes(ext)) {
       cb(null, true)
     } else {
-      cb(new Error('File extension must be jpg, jpeg, or png'), false)
+      cb(new Error('The image extension must be jpg, jpeg, or png'), false)
     }
   }
 
-  const upload = multer({
-    storage,
-    fileFilter,
-    limits: { fileSize: 500000 }
-  }).single('image')
-
   const uploadFilter = (req, res, next) => {
-    upload(req, res, function (err) {
+    upload(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         // A Multer error occurred when uploading.
-        return wrapper.response(res, 401, err.message, null)
+        return wrapper.response(
+          res,
+          401,
+          'File too large. Size allowed must be equal to or below 1 Megabyte',
+          null
+        )
       } else if (err) {
         // An unknown error occurred when uploading.
         return wrapper.response(res, 401, err.message, null)
@@ -41,6 +40,12 @@ const uploadFile = (uploadPath) => {
       next()
     })
   }
+
+  const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 1000000 }
+  }).single('image')
 
   return uploadFilter
 }

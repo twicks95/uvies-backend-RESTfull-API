@@ -23,5 +23,25 @@ module.exports = {
         !error ? resolve(result) : reject(new Error(error))
       })
     })
+  },
+
+  resetPassword: (setData, email) => {
+    return new Promise((resolve, reject) => {
+      db.query(
+        'UPDATE user SET ? WHERE user_email = ?',
+        [setData, email],
+        (error, result) => {
+          if (!error) {
+            const newResult = {
+              affected: result.affectedRows,
+              ...setData
+            }
+            resolve(newResult)
+          } else {
+            reject(new Error(error))
+          }
+        }
+      )
+    })
   }
 }

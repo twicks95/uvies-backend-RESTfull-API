@@ -52,7 +52,6 @@ module.exports = {
   createData: (setData) => {
     return new Promise((resolve, reject) => {
       db.query('INSERT INTO movie SET ?', setData, (error, result) => {
-        // !error ? resolve({id: result.insertId, ...setData}) : reject(new Error(error))
         if (!error) {
           const newResult = {
             id: result.insertId,

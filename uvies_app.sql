@@ -243,14 +243,14 @@ CREATE TABLE `user` (
   `user_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `user_updated_at` datetime DEFAULT NULL,
   `user_role` enum('admin','user') NOT NULL,
-  `user_status` enum('1','0') NOT NULL DEFAULT '0'
+  `user_verification` enum('1','0') NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data untuk tabel `user`
 --
 
-INSERT INTO `user` (`user_id`, `user_name`, `user_email`, `user_password`, `user_phone_number`, `user_profile_picture`, `user_created_at`, `user_updated_at`, `user_role`, `user_status`) VALUES
+INSERT INTO `user` (`user_id`, `user_name`, `user_email`, `user_password`, `user_phone_number`, `user_profile_picture`, `user_created_at`, `user_updated_at`, `user_role`, `user_verification`) VALUES
 (10, 'admin admin', 'admin@admin.com', '$2b$10$K4pQMwoSrs7hVLufmd/.jeRkDiESoAoI0xyzEW3Ussb./N4wJtQUy', '', '2021-05-09T14-02-24.355Zadmin.jpg', '2021-04-29 19:05:45', '2021-05-09 21:02:24', 'admin', '0'),
 (38, 'Teguh Widodo', 'sayhallo.teguh@gmail.com', '$2b$10$4HbN89g2Xdx91tODgXSsPe.jQWtvaeXj8/d.8janC3Fm3VjK8PMJ.', '082324871066', '2021-05-10T04-10-13.585Zbranch_leaves_minimalism_196771_1680x1050.jpg', '2021-05-06 20:44:01', '2021-05-10 11:11:21', 'user', '0'),
 (42, 'test', 'test@gmail.com', '$2b$10$lhBacezQbcRvL.1yGUfja.seA/VLGboQcVOpvF6DdY8RFIJQ.hGui', '', '', '2021-05-10 11:07:16', NULL, 'user', '0');

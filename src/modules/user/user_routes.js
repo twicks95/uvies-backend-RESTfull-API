@@ -7,16 +7,21 @@ const uploadFile = require('../../middleware/uploads')
 const userController = require('./user_controller')
 
 route.get('/activate/:id', userController.updateUserStatus)
+route.get('/:id', userController.getUserById)
 route.patch(
-  '/data/:id',
+  '/update/data/:id',
   authMiddleware.authentication,
-  uploadFile('user_profile_picture'),
   userController.updateUserData
+)
+route.patch(
+  '/data/image/:id',
+  // authMiddleware.authentication,
+  uploadFile('user_profile_picture'),
+  userController.updateUserImage
 )
 route.patch(
   '/password/:id',
   authMiddleware.authentication,
-  uploadFile('user_profile_picture'),
   userController.updateUserPassword
 )
 route.delete('/:id', authMiddleware.authentication, userController.deleteUser)

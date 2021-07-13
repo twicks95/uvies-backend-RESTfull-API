@@ -11,23 +11,22 @@ module.exports = {
     try {
       const {
         movieName,
-        movieCategory,
-        movieReleaseDate,
-        movieDuration,
-        movieDirector,
         movieCasts,
-        movieSynopsis
+        movieSynopsis,
+        movieDirector,
+        movieDuration,
+        movieCategory,
+        movieReleaseDate
       } = req.body
 
       const setData = {
         movie_name: movieName,
-        movie_category: movieCategory,
-        movie_release_date: movieReleaseDate,
-        movie_poster: req.file ? req.file.filename : '',
-        movie_duration: movieDuration,
-        movie_director: movieDirector,
         movie_casts: movieCasts,
-        movie_synopsis: movieSynopsis
+        movie_director: movieDirector,
+        movie_synopsis: movieSynopsis,
+        movie_duration: movieDuration,
+        movie_category: movieCategory,
+        movie_release_date: movieReleaseDate
       }
 
       const result = await movieModel.createData(setData)
@@ -37,14 +36,86 @@ module.exports = {
     }
   },
 
+  postMovieImage: async (req, res) => {
+    try {
+      const setData = {
+        movie_poster: req.file ? req.file.filename : ''
+      }
+      const result = await movieModel.createData(setData)
+      return wrapper.response(res, 200, 'Success Create Image', result)
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error)
+    }
+  },
+
+  updateMovieImage: async (req, res) => {
+    try {
+      const { id } = req.params
+      const setData = {
+        movie_poster: req.file ? req.file.filename : '',
+        movie_updated_at: new Date(Date.now())
+      }
+      const dataToUpdate = await movieModel.getDataById(id)
+      if (dataToUpdate.length > 0) {
+        const imageToDelete = dataToUpdate[0].movie_poster
+        const isImageExist = fs.existsSync(
+          `src/uploads/movie_poster/${imageToDelete}`
+        )
+
+        if (isImageExist && imageToDelete) {
+          fs.unlink(`src/uploads/movie_poster/${imageToDelete}`, (err) => {
+            if (err) throw err
+          })
+        }
+
+        const result = await movieModel.updateData(setData, id)
+        return wrapper.response(res, 200, 'Success Update Image', result)
+      } else {
+        return wrapper.response(res, 404, 'Failed! No Data Is Updated')
+      }
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error)
+    }
+  },
+
+  deleteMovieImage: async (req, res) => {
+    try {
+      const { id } = req.params
+      const setData = {
+        movie_poster: '',
+        movie_updated_at: new Date(Date.now())
+      }
+      const dataToUpdate = await movieModel.getDataById(id)
+      if (dataToUpdate.length > 0) {
+        const imageToDelete = dataToUpdate[0].movie_poster
+        const isImageExist = fs.existsSync(
+          `src/uploads/movie_poster/${imageToDelete}`
+        )
+
+        if (isImageExist && imageToDelete) {
+          fs.unlink(`src/uploads/movie_poster/${imageToDelete}`, (err) => {
+            if (err) throw err
+          })
+        }
+
+        const result = await movieModel.updateData(setData, id)
+        return wrapper.response(res, 200, 'Success Delete Image', result)
+      } else {
+        return wrapper.response(res, 404, 'Failed! No Data Is Updated')
+      }
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error)
+    }
+  },
+
   getAllMovie: async (req, res) => {
     try {
-      let {
-        page = '1',
-        limit = '100',
-        searchByName = '',
-        sort = 'movie_id ASC'
-      } = req.query
+      let { page, limit, searchByName, sort } = req.query
+
+      page = !page ? '1' : page
+      limit = !limit ? '100' : limit
+      sort = !sort ? 'movie_id ASC' : sort
+      searchByName = !searchByName ? '' : searchByName
 
       page = parseInt(page)
       limit = parseInt(limit)
@@ -108,7 +179,7 @@ module.exports = {
 
         return wrapper.response(res, 200, 'Success Get Movie By Id', result)
       } else {
-        return wrapper.response(res, 404, `Not Data With Id ${id}`, null)
+        return wrapper.response(res, 404, `No Data With Id ${id}`, null)
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
@@ -165,7 +236,6 @@ module.exports = {
         movie_name: movieName,
         movie_category: movieCategory,
         movie_release_date: movieReleaseDate,
-        movie_poster: req.file ? req.file.filename : '',
         movie_duration: movieDuration,
         movie_director: movieDirector,
         movie_casts: movieCasts,
@@ -175,17 +245,6 @@ module.exports = {
 
       const dataToUpdate = await movieModel.getDataById(id)
       if (dataToUpdate.length > 0) {
-        const imageToDelete = dataToUpdate[0].movie_poster
-        const isImageExist = fs.existsSync(
-          `src/uploads/movie_poster/${imageToDelete}`
-        )
-
-        if (isImageExist && imageToDelete) {
-          fs.unlink(`src/uploads/movie_poster/${imageToDelete}`, (err) => {
-            if (err) throw err
-          })
-        }
-
         const result = await movieModel.updateData(setData, id)
         return wrapper.response(res, 200, 'Success Update Movie', result)
       } else {
@@ -207,7 +266,7 @@ module.exports = {
           `src/uploads/movie_poster/${imageToDelete}`
         )
 
-        if (isImageExist) {
+        if (isImageExist && imageToDelete) {
           fs.unlink(`src/uploads/movie_poster/${imageToDelete}`, (err) => {
             if (err) throw err
           })

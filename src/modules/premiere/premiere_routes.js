@@ -1,29 +1,12 @@
 const express = require('express')
 const route = express.Router()
-
-const authMiddleware = require('../../middleware/auth')
-
+const { authentication, isAdmin } = require('../../middleware/auth')
 const premiereController = require('./premiere_controller')
 
 route.get('/', premiereController.getAllPremiere)
-route.get('/:id', premiereController.getAllPremiere)
-route.post(
-  '/',
-  authMiddleware.authentication,
-  authMiddleware.isAdmin,
-  premiereController.postPremiere
-)
-route.patch(
-  '/:id',
-  authMiddleware.authentication,
-  authMiddleware.isAdmin,
-  premiereController.updatePremiere
-)
-route.delete(
-  '/:id',
-  authMiddleware.authentication,
-  authMiddleware.isAdmin,
-  premiereController.deletePremiere
-)
+route.get('/2', premiereController.getAllPremiereWithoutJoinSchedule)
+route.post('/', authentication, isAdmin, premiereController.postPremiere)
+route.patch('/:id', authentication, isAdmin, premiereController.updatePremiere)
+route.delete('/:id', authentication, isAdmin, premiereController.deletePremiere)
 
 module.exports = route

@@ -7,18 +7,18 @@ module.exports = {
   postPremiere: async (req, res) => {
     try {
       const {
-        movieID,
-        locationID,
+        movieId,
+        locationId,
         premiereName,
         premierePrice,
         scheduleDateStart,
         scheduleDateEnd,
-        scheduleClock = ['08:30:00', '10:00:00', '14:00:00', '18:00:00']
+        scheduleClock
       } = req.body
 
       const setDataPremiere = {
-        movie_id: movieID,
-        location_id: locationID,
+        movie_id: movieId,
+        location_id: locationId,
         premiere_name: premiereName,
         premiere_price: premierePrice
       }
@@ -57,8 +57,8 @@ module.exports = {
 
   getAllPremiere: async (req, res) => {
     try {
-      const { id } = req.params
       let {
+        id = '',
         date = '',
         location = '',
         movie = '',
@@ -67,21 +67,23 @@ module.exports = {
         limit = '100'
       } = req.query
 
+      const movieIdStatement = id
+        ? `premiere.movie_id = ${id}`
+        : 'premiere.movie_id LIKE "%%"'
+
       let queryCondition
       if (location && movie) {
-        queryCondition = `location_city LIKE "%${location}%" AND movie_name LIKE "%${movie}%"`
+        queryCondition = `premiere_location.location_city LIKE "%${location}%" AND movie.movie_name LIKE "%${movie}%" AND ${movieIdStatement}`
+      } else if (location && date) {
+        queryCondition = `premiere_location.location_city LIKE "%${location}%" AND schedule.schedule_date_start = '${date}' AND ${movieIdStatement}`
       } else if (date) {
-        queryCondition = `schedule_date LIKE "%${date}%"`
+        queryCondition = `schedule.schedule_date_start = '${date}' AND ${movieIdStatement}`
       } else if (location) {
-        queryCondition = `location_city LIKE "%${location}%"`
+        queryCondition = `premiere_location.location_city LIKE "%${location}%" AND ${movieIdStatement}`
       } else if (movie) {
-        queryCondition = `movie_name LIKE "%${movie}%"`
+        queryCondition = `movie.movie_name LIKE "%${movie}%" AND ${movieIdStatement}`
       } else {
-        if (id) {
-          queryCondition = `premiere.movie_id = ${id} AND premiere_name LIKE "%%"`
-        } else {
-          queryCondition = 'premiere_name LIKE "%%"'
-        }
+        queryCondition = `${movieIdStatement}`
       }
 
       page = parseInt(page)
@@ -111,6 +113,102 @@ module.exports = {
         premiere.schedule_clock = fromSchedule.map(
           (schedule) => schedule.schedule_clock
         )
+        premiere.schedule_clock_data = fromSchedule
+      }
+
+      return wrapper.response(
+        res,
+        200,
+        'Success Get All Premiere',
+        result,
+        pageInfo
+      )
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error.message)
+    }
+  },
+
+  getAllPremiereWithoutJoinSchedule: async (req, res) => {
+    try {
+      let {
+        movieId = '',
+        premiereId = '',
+        location = '',
+        movie = '',
+        order,
+        page,
+        limit
+      } = req.query
+
+      if (!order) {
+        order = 'premiere_id ASC'
+      }
+      if (!page) {
+        page = '1'
+      }
+      if (!limit) {
+        limit = '10'
+      }
+
+      console.log(movieId, premiereId, location, movie, order, page, limit)
+
+      const movieIdStatement = movieId
+        ? `premiere.movie_id = ${movieId}`
+        : 'premiere.movie_id LIKE "%%"'
+
+      const premiereIdStatement = premiereId
+        ? `premiere.premiere_id = ${premiereId}`
+        : 'premiere.premiere_id LIKE "%%"'
+
+      const locationNameStatement = location
+        ? `premiere_location.location_city = '${location}'`
+        : 'premiere_location.location_city LIKE "%%"'
+
+      let queryCondition
+      if (location && movie) {
+        queryCondition = `${locationNameStatement} AND movie.movie_name LIKE "%${movie}%" AND ${movieIdStatement}`
+      } else if (location) {
+        queryCondition = `${locationNameStatement} AND ${movieIdStatement}`
+      } else if (movie) {
+        queryCondition = `movie.movie_name LIKE "%${movie}%" AND ${movieIdStatement}`
+      } else if (movieId) {
+        queryCondition = `${movieIdStatement}`
+      } else {
+        queryCondition = `${premiereIdStatement}`
+      }
+
+      page = parseInt(page)
+      limit = parseInt(limit)
+      let offset = 0
+      offset = page * limit - limit
+      const totalData = await premiereModel.getDataCountWithoutJoinSchedule(
+        queryCondition
+      )
+      const totalPage = Math.ceil(totalData / limit)
+      const pageInfo = pagination.pageInfo(
+        page,
+        totalPage,
+        limit,
+        totalData,
+        offset
+      )
+
+      console.log(pageInfo)
+
+      const result = await premiereModel.getAllData(
+        queryCondition,
+        order,
+        limit,
+        offset
+      )
+      for (const premiere of result) {
+        const fromSchedule = await scheduleModel.getDataByPremiereId(
+          premiere.premiere_id
+        )
+        premiere.schedule_clock = fromSchedule.map(
+          (schedule) => schedule.schedule_clock
+        )
+        premiere.schedule_clock_data = fromSchedule
       }
 
       return wrapper.response(
@@ -128,10 +226,10 @@ module.exports = {
   updatePremiere: async (req, res) => {
     try {
       const { id } = req.params
-      const { movieID, locationID, premiereName, premierePrice } = req.body
+      const { movieId, locationId, premiereName, premierePrice } = req.body
       const setData = {
-        movie_id: movieID,
-        location_id: locationID,
+        movie_id: movieId,
+        location_id: locationId,
         premiere_name: premiereName,
         premiere_price: premierePrice,
         premiere_updated_at: new Date(Date.now())
@@ -165,6 +263,7 @@ module.exports = {
 
       if (dataToDelete.length > 0) {
         await premiereModel.deleteData(id)
+        await scheduleModel.deleteDataByPremiereId(id)
         return wrapper.response(
           res,
           200,

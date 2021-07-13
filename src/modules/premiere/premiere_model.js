@@ -20,10 +20,11 @@ module.exports = {
   getAllData: (condition, order, limit, offset) => {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT * FROM premiere 
+        `SELECT premiere.movie_id, movie.movie_name, movie.movie_poster, premiere.premiere_id, premiere.premiere_name, premiere.premiere_price, premiere_location.location_id, premiere_location.location_city, premiere_location.location_address, schedule.schedule_id, schedule.schedule_date_start, schedule.schedule_date_end FROM premiere 
         JOIN premiere_location ON premiere.location_id = premiere_location.location_id 
-        JOIN movie ON premiere.movie_id = movie.movie_id  
-        WHERE ${condition} ORDER BY ${order} LIMIT ? OFFSET ?`,
+        JOIN movie ON premiere.movie_id = movie.movie_id
+        JOIN schedule ON premiere.premiere_id = schedule.premiere_id  
+        WHERE ${condition} GROUP BY schedule.premiere_id ORDER BY premiere.${order} LIMIT ? OFFSET ?`,
         [limit, offset],
         (error, result) => {
           if (!error) {
@@ -37,6 +38,21 @@ module.exports = {
   },
 
   getDataCount: (condition) => {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `SELECT COUNT(*) AS total FROM premiere 
+        JOIN premiere_location ON premiere.location_id = premiere_location.location_id 
+        JOIN movie ON premiere.movie_id = movie.movie_id
+        JOIN schedule ON premiere.premiere_id = schedule.premiere_id
+        WHERE ${condition}`,
+        (error, result) => {
+          !error ? resolve(result[0].total) : reject(new Error(error))
+        }
+      )
+    })
+  },
+
+  getDataCountWithoutJoinSchedule: (condition) => {
     return new Promise((resolve, reject) => {
       db.query(
         `SELECT COUNT(*) AS total FROM premiere 
