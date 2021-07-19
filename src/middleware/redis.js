@@ -1,11 +1,10 @@
-const redis = require('redis')
-const client = redis.createClient()
+const redis = require('../config/redis')
 const wrapper = require('../helpers/wrapper')
 
 module.exports = {
   getMovieByIdRedis: (req, res, next) => {
     const { id } = req.params
-    client.get(`getmovie:${id}`, (error, result) => {
+    redis.get(`getmovie:${id}`, (error, result) => {
       if (!error && result != null) {
         return wrapper.response(
           res,
@@ -20,7 +19,7 @@ module.exports = {
   },
 
   getMovieRedis: (req, res, next) => {
-    client.get(`getallmovie:${JSON.stringify(req.query)}`, (error, result) => {
+    redis.get(`getallmovie:${JSON.stringify(req.query)}`, (error, result) => {
       if (!error && result != null) {
         console.log('Data ada di redis')
         const newResult = JSON.parse(result)
@@ -39,10 +38,10 @@ module.exports = {
   },
 
   clearDataMovieRedis: (req, res, next) => {
-    client.keys('getallmovie*', (_error, result) => {
+    redis.keys('getallmovie*', (_error, result) => {
       if (result.length > 0) {
         result.forEach((item) => {
-          client.del(item)
+          redis.del(item)
         })
       }
       next()
