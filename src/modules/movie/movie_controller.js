@@ -1,6 +1,5 @@
 const fs = require('fs')
-const redis = require('redis')
-const client = redis.createClient()
+const redis = require('../../config/redis')
 
 const wrapper = require('../../helpers/wrapper')
 const pagination = require('../../helpers/pagination')
@@ -140,7 +139,7 @@ module.exports = {
       )
 
       if (result.length > 0) {
-        client.setex(
+        redis.setex(
           `getallmovie:${JSON.stringify(req.query)}`,
           3600,
           JSON.stringify({ result, pageInfo })
@@ -155,7 +154,7 @@ module.exports = {
           pageInfo
         )
       } else {
-        client.setex(
+        redis.setex(
           `getallmovie:${JSON.stringify(req.query)}`,
           3600,
           JSON.stringify({ result, pageInfo })
@@ -174,7 +173,7 @@ module.exports = {
 
       if (result.length > 0) {
         // create redis key and insert result model to redis
-        client.set(`getmovie:${id}`, JSON.stringify(result))
+        redis.set(`getmovie:${id}`, JSON.stringify(result))
         // =============================
 
         return wrapper.response(res, 200, 'Success Get Movie By Id', result)
