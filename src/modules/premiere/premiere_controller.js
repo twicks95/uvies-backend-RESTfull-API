@@ -75,9 +75,9 @@ module.exports = {
       if (location && movie) {
         queryCondition = `premiere_location.location_city LIKE "%${location}%" AND movie.movie_name LIKE "%${movie}%" AND ${movieIdStatement}`
       } else if (location && date) {
-        queryCondition = `premiere_location.location_city LIKE "%${location}%" AND schedule.schedule_date_start = '${date}' AND ${movieIdStatement}`
+        queryCondition = `premiere_location.location_city LIKE "%${location}%" AND (schedule.schedule_date_start <= '${date}' AND schedule.schedule_date_end >= '${date}') AND ${movieIdStatement}`
       } else if (date) {
-        queryCondition = `schedule.schedule_date_start = '${date}' AND ${movieIdStatement}`
+        queryCondition = `(schedule.schedule_date_start <= '${date}' AND schedule.schedule_date_end >= '${date}') AND ${movieIdStatement}`
       } else if (location) {
         queryCondition = `premiere_location.location_city LIKE "%${location}%" AND ${movieIdStatement}`
       } else if (movie) {

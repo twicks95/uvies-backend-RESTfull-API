@@ -1,13 +1,8 @@
 const express = require('express')
 const route = express.Router()
-const premiereLocationController = require('./premiere_location_controller')
-const { authentication } = require('../../middleware/auth')
+const { getAllPremiereLocation } = require('./premiere_location_controller')
 
-route.get(
-  '/',
-  authentication,
-  premiereLocationController.getAllPremiereLocation
-)
-// route.delete('/:id', premiereLocationModel.deletePremiereLocation)
+route.get('/', getAllPremiereLocation)
+// route.delete('/:id', deletePremiereLocation)
 
 module.exports = route

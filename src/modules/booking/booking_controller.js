@@ -14,7 +14,8 @@ module.exports = {
         bookingTotalPrice,
         bookingPaymentMethod,
         bookingStatus,
-        bookingSeat
+        bookingSeat,
+        bookingDate
       } = req.body
 
       const getPremiere = await premiereModel.getDataById(premiereId)
@@ -30,9 +31,9 @@ module.exports = {
         booking_ticket: parseInt(bookingTicket),
         booking_total_price: parseInt(bookingTotalPrice),
         booking_payment_method: bookingPaymentMethod,
-        booking_status: bookingStatus
+        booking_status: bookingStatus,
+        booking_for_date: bookingDate
       }
-
       const bookingResult = await bookingModel.createDataToBooking(
         setDataBooking
       )
@@ -50,73 +51,15 @@ module.exports = {
     }
   },
 
-  getAllBookingByBookingId: async (req, res) => {
-    try {
-      let { bookingId, page = '1', limit = '100' } = req.query
-
-      page = parseInt(page)
-      limit = parseInt(limit)
-      const totalData = await bookingModel.getDataCountByBookingId(bookingId)
-      const totalPage = Math.ceil(totalData / limit)
-      let offset = 0
-      offset = page * limit - limit
-      const pageInfo = pagination.pageInfo(
-        page,
-        totalPage,
-        limit,
-        totalData,
-        offset
-      )
-
-      const result = await bookingModel.getAllDataByBookingId(
-        bookingId,
-        limit,
-        offset
-      )
-      if (result.length > 0) {
-        return wrapper.response(
-          res,
-          200,
-          `Success Get All Booking Data By Booking Id ${bookingId}`,
-          result,
-          pageInfo
-        )
-      } else {
-        return wrapper.response(
-          res,
-          404,
-          `No Booking Data With Booking Id ${bookingId}`,
-          result
-        )
-      }
-    } catch (error) {
-      return wrapper.response(res, 400, 'Bad Request', error)
-    }
-  },
-
   getAllBookingByUserId: async (req, res) => {
     try {
-      let { userId, page = '1', limit = '100' } = req.query
+      let { userId, limit } = req.query
+      limit = !limit ? 100 : parseInt(limit)
 
-      page = parseInt(page)
-      limit = parseInt(limit)
-      const totalData = await bookingModel.getDataCountByUserId(userId)
-      const totalPage = Math.ceil(totalData / limit)
-      let offset = 0
-      offset = page * limit - limit
-      const pageInfo = pagination.pageInfo(
-        page,
-        totalPage,
-        limit,
-        totalData,
-        offset
-      )
+      const totalBooking = await bookingModel.getDataCountByUserId(userId)
+      const pageInfo = pagination.pageInfo(0, 0, limit, totalBooking, 0)
+      const result = await bookingModel.getAllDataByUserId(userId, limit)
 
-      const result = await bookingModel.getAllDataByUserId(
-        userId,
-        limit,
-        offset
-      )
       if (result.length > 0) {
         return wrapper.response(
           res,
@@ -138,10 +81,35 @@ module.exports = {
     }
   },
 
+  getBookingByBookingId: async (req, res) => {
+    try {
+      const { id } = req.params
+
+      const result = await bookingModel.getDataByBookingId(id)
+      if (result.length > 0) {
+        return wrapper.response(
+          res,
+          200,
+          `Success Get Booking Data By Booking Id ${id}`,
+          result
+        )
+      } else {
+        return wrapper.response(
+          res,
+          404,
+          `No Booking Data With Booking Id ${id}`,
+          result
+        )
+      }
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error)
+    }
+  },
+
   getBookingSeatByBookingId: async (req, res) => {
     try {
       const { id } = req.params
-      console.log(id)
+
       const result = await bookingModel.getBookingSeatData(id)
       if (result.length > 0) {
         return wrapper.response(res, 200, 'Success', result)
@@ -161,7 +129,8 @@ module.exports = {
   getBookedSeat: async (req, res) => {
     try {
       const { id } = req.params
-      const result = await bookingModel.getBookedSeat(id)
+      const { date, scheduleId } = req.query
+      const result = await bookingModel.getBookedSeat(id, date, scheduleId)
       if (result.length > 0) {
         return wrapper.response(res, 200, 'Success', result)
       } else {
@@ -175,7 +144,6 @@ module.exports = {
   getEarnings: async (req, res) => {
     try {
       const { movieId, premiere = '', locationId } = req.query
-
       const movieStatement = movieId
         ? `movie_id = ${movieId}`
         : 'movie_id LIKE "%%"'

@@ -1,62 +1,69 @@
 const express = require('express')
 const route = express.Router()
 
-const movieController = require('./movie_controller')
-
-const authMiddleware = require('../../middleware/auth')
+const { authentication, isAdmin } = require('../../middleware/auth')
 const redisMiddleware = require('../../middleware/redis')
 const uploadFile = require('../../middleware/uploads')
+const {
+  getAllMovie,
+  getMovieById,
+  getNowShowing,
+  getUpcomingMovieByMonth,
+  postMovie,
+  postMovieImage,
+  updateMovie,
+  updateMovieImage,
+  deleteMovie,
+  deleteMovieImage
+} = require('./movie_controller')
 
-route.get('/', redisMiddleware.getMovieRedis, movieController.getAllMovie)
-route.get(
-  '/:id',
-  redisMiddleware.getMovieByIdRedis,
-  movieController.getMovieById
-)
-route.get('/upcoming/:month', movieController.getUpcomingMovieByMonth)
+route.get('/now-showing', getNowShowing)
+route.get('/', redisMiddleware.getMovieRedis, getAllMovie)
+route.get('/:id', redisMiddleware.getMovieByIdRedis, getMovieById)
+route.get('/upcoming/:month', getUpcomingMovieByMonth)
 route.post(
   '/',
-  authMiddleware.authentication,
-  authMiddleware.isAdmin,
+  authentication,
+  isAdmin,
   redisMiddleware.clearDataMovieRedis,
-  movieController.postMovie
+  postMovie
 )
 route.post(
   '/image',
-  authMiddleware.authentication,
-  authMiddleware.isAdmin,
+  authentication,
+  isAdmin,
   uploadFile('movie_poster'),
   redisMiddleware.clearDataMovieRedis,
-  movieController.postMovieImage
+  postMovieImage
 )
 route.patch(
   '/:id',
-  authMiddleware.authentication,
-  authMiddleware.isAdmin,
+  authentication,
+  isAdmin,
   redisMiddleware.clearDataMovieRedis,
-  movieController.updateMovie
+  updateMovie
 )
 route.patch(
   '/image/:id',
-  authMiddleware.authentication,
-  authMiddleware.isAdmin,
+  authentication,
+  isAdmin,
   uploadFile('movie_poster'),
   redisMiddleware.clearDataMovieRedis,
-  movieController.updateMovieImage
+  updateMovieImage
 )
 route.delete(
   '/:id',
-  authMiddleware.authentication,
-  authMiddleware.isAdmin,
+  authentication,
+  isAdmin,
   redisMiddleware.clearDataMovieRedis,
-  movieController.deleteMovie
+  deleteMovie
 )
 route.delete(
   '/image/:id',
-  authMiddleware.authentication,
-  authMiddleware.isAdmin,
+  authentication,
+  isAdmin,
   redisMiddleware.clearDataMovieRedis,
-  movieController.deleteMovieImage
+  deleteMovieImage
 )
 
 module.exports = route

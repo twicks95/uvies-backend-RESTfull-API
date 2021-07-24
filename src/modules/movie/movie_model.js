@@ -13,6 +13,26 @@ module.exports = {
     })
   },
 
+  getNowShowing: (date, order, limit) => {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `SELECT premiere.movie_id, movie.movie_name, movie.movie_poster, movie.movie_category FROM premiere 
+        JOIN premiere_location ON premiere.location_id = premiere_location.location_id 
+        JOIN movie ON premiere.movie_id = movie.movie_id
+        JOIN schedule ON premiere.premiere_id = schedule.premiere_id  
+        WHERE schedule.schedule_date_start <= ? AND schedule.schedule_date_end >= ? GROUP BY movie.movie_id ORDER BY movie.${order} LIMIT ?`,
+        [date, date, limit],
+        (error, result) => {
+          if (!error) {
+            resolve(result)
+          } else {
+            reject(new Error(error))
+          }
+        }
+      )
+    })
+  },
+
   getDataCount: (searchKeyword) => {
     return new Promise((resolve, reject) => {
       db.query(

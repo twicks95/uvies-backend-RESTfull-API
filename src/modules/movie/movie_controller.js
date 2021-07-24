@@ -166,6 +166,33 @@ module.exports = {
     }
   },
 
+  getNowShowing: async (req, res) => {
+    try {
+      let { date, order, limit } = req.query
+
+      order = !order ? 'movie_id ASC' : order
+      limit = !limit ? 6 : limit
+
+      const result = await movieModel.getNowShowing(
+        date,
+        order,
+        parseInt(limit)
+      )
+      if (result.length > 0) {
+        return wrapper.response(
+          res,
+          200,
+          'Success Get Now Showing Movies',
+          result
+        )
+      } else {
+        return wrapper.response(res, 200, 'No Show Time', [])
+      }
+    } catch (error) {
+      return wrapper.response(res, 400, 'Bad Request', error)
+    }
+  },
+
   getMovieById: async (req, res) => {
     try {
       const { id } = req.params
