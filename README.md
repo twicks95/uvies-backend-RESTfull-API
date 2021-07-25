@@ -30,10 +30,10 @@ This RESTfull API was built for every aplication that need to get or collect dat
 Open .env file on your favorite code editor, and copy paste this code below :
 
 ```
-DB_HOST = localhost // Database host
-DB_USER = root
-DB_PASS =
-PORT = 3001
+DB_HOST = localhost || database_host
+DB_USER = root || database_username
+DB_PASS = '' || database_password
+DB_PORT = '' || database_port
 DB_NAME = uvies_app
 
 SMTP_EMAIL = sender_email
