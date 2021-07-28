@@ -120,7 +120,8 @@ module.exports = {
   updateUserStatus: async (req, res) => {
     try {
       const { id } = req.params
-      const result = await userModel.updateUser({ user_verification: 1 }, id)
+      const result = await userModel.updateUser({ user_verification: '1' }, id)
+
       return wrapper.response(res, 200, 'Success Update Account Status', result)
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)

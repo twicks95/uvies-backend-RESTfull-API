@@ -82,7 +82,7 @@ module.exports = {
 
   resendActivationEmail: async (req, res) => {
     try {
-      const { userEmail, userId } = req.query
+      const { userEmail } = req.query
 
       // check email availability
       const checkingUserEmail = await authModel.getDataConditions({
@@ -91,8 +91,6 @@ module.exports = {
 
       // If checkingEmail returned an object within array
       if (checkingUserEmail.length > 0) {
-        return wrapper.response(res, 409, 'Email Not Found')
-      } else {
         const transporter = nodemailer.createTransport({
           host: 'smtp.gmail.com',
           port: 587,
@@ -107,7 +105,10 @@ module.exports = {
           from: '"Uvies" <uvies.movs@gmail.com>', // sender address
           to: userEmail, // list of receivers
           subject: 'Uvies - Email account activation', // Subject line
-          html: `<a href="http://${process.env.DB_HOST}:${process.env.PORT}/backend1/api/v1/user/activate/${userId}">Click this link</a><b> to activate your account.</b>` // html body
+          html: `
+          <h4>Hello moviegoers.</h4>
+          <p>This email contains a link to activate your account.</p>
+          <a href="http://uvies.netlify.app/account/activation?status=activating">Click here</a><b> to activate your account.</b>` // html body
         })
 
         transporter.sendMail(mailOptions, function (error, info) {
@@ -121,6 +122,8 @@ module.exports = {
         })
 
         return wrapper.response(res, 200, 'Success Resend Email Activation')
+      } else {
+        return wrapper.response(res, 409, 'Email Not Found')
       }
     } catch (error) {
       return wrapper.response(res, 400, 'Bad Request', error)
@@ -168,7 +171,10 @@ module.exports = {
           from: '"Uvies" <uvies.movs@gmail.com>', // sender address
           to: result.user_email, // list of receivers
           subject: 'Uvies - Email account activation', // Subject line
-          html: `<a href="http://${process.env.DB_HOST}:${process.env.PORT}/backend1/api/v1/user/activate/${result.id}">Click this link</a><b> to activate your account.</b>` // html body
+          html: `
+          <h4>Hello moviegoers.</h4>
+          <p>This email contains a link to activate your account.</p>
+          <a href="https://uvies.netlify.app/account/activation?status=activating">Click here</a><b> to activate your account.</b>` // html body
         })
 
         transporter.sendMail(mailOptions, function (error, info) {
