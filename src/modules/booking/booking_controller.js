@@ -143,22 +143,26 @@ module.exports = {
 
   getEarnings: async (req, res) => {
     try {
-      const { movieId, premiere = '', locationId } = req.query
-      const movieStatement = movieId
-        ? `movie_id = ${movieId}`
-        : 'movie_id LIKE "%%"'
-      const locationStatement = locationId
-        ? `location_id = ${locationId}`
-        : 'location_id LIKE "%%"'
+      let { movieId, premiere, locationId } = req.query
+      movieId = movieId
+        ? `booking.movie_id = ${parseInt(movieId)}`
+        : 'booking.movie_id LIKE "%%"'
+      locationId = locationId
+        ? `booking.location_id = ${parseInt(locationId)}`
+        : 'booking.location_id LIKE "%%"'
+      premiere = premiere
+        ? `premiere.premiere_name = '${premiere}'`
+        : 'premiere.premiere_name LIKE "%%"'
 
+      console.log(movieId, premiere, locationId)
       const result = await bookingModel.getTotalEarnings(
-        movieStatement,
+        movieId,
         premiere,
-        locationStatement
+        locationId
       )
       return wrapper.response(res, 200, 'Success', result)
     } catch (error) {
-      return wrapper.response(res, 400, 'Bad Request', error)
+      return wrapper.response(res, 400, 'Bad Request', error.message)
     }
   }
 }

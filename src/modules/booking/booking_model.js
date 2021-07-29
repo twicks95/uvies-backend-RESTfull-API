@@ -98,7 +98,8 @@ module.exports = {
   getBookedSeat: (id, date, scheduleId) => {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT premiere.premiere_name, movie.movie_name, schedule.schedule_date_start, schedule.schedule_clock, booking_seat.booking_seat_location FROM booking 
+        `SELECT premiere.premiere_name, movie.movie_name, schedule.schedule_date_start, schedule.schedule_clock, booking_seat.booking_seat_location 
+        FROM booking 
         JOIN premiere ON booking.premiere_id = premiere.premiere_id 
         JOIN movie ON booking.movie_id = movie.movie_id 
         JOIN booking_seat ON booking_seat.booking_id = booking.booking_id 
@@ -115,18 +116,17 @@ module.exports = {
   getTotalEarnings: (movie, premiere, location) => {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT MONTH(booking_created_at) AS month, SUM(booking_total_price) AS total, premiere.premiere_name FROM booking 
+        `SELECT MONTH(booking.booking_created_at) AS month, SUM(booking.booking_total_price) AS total, premiere.premiere_name
+        FROM booking 
         JOIN premiere ON booking.premiere_id = premiere.premiere_id 
-        WHERE YEAR(booking_created_at) = YEAR(NOW()) AND premiere.${movie} AND premiere.premiere_name LIKE "%"?"%" AND premiere.${location} 
-        GROUP BY MONTH(booking.booking_created_at)`,
-        premiere,
+        WHERE ${movie} AND ${premiere} AND ${location} 
+        AND YEAR(booking_created_at) = YEAR(NOW())
+        GROUP BY MONTH(booking.booking_created_at)
+        `,
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))
         }
       )
     })
-    // SELECT MONTH(booking_created_at) AS month, SUM(booking_total_price) AS total, premiere.premiere_name FROM booking JOIN premiere ON booking.premiere_id = premiere.premiere_id JOIN movie ON movie.movie_id = booking.movie_id WHERE YEAR(booking_created_at) = YEAR(NOW()) AND movie.movie_id = '7' GROUP BY MONTH(booking.booking_created_at)
-
-    // SELECT MONTH(booking_created_at) AS month,SUM(booking_total_price) AS total,premiere.movie_id,premiere.premiere_name FROM booking JOIN premiere ON booking.premiere_id = premiere.premiere_id WHERE YEAR(booking_created_at) = YEAR(NOW()) AND premiere.movie_id = '70' AND premiere.premiere_name LIKE "%""%" GROUP BY MONTH(booking_created_at)
   }
 }
