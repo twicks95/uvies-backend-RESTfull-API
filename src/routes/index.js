@@ -8,7 +8,6 @@ const premiereLocationRouter = require('../modules/premiere_location/premiere_lo
 const scheduleRouter = require('../modules/schedule/schedule_routes')
 const bookingRouter = require('../modules/booking/booking_routes')
 const userRouter = require('../modules/user/user_routes')
-const dashboardRouter = require('../modules/dashboard/dashboard_routes')
 
 route.use('/auth', authRouter)
 route.use('/movie', movieRouter)
@@ -17,6 +16,5 @@ route.use('/premiere/location', premiereLocationRouter)
 route.use('/schedule', scheduleRouter)
 route.use('/booking', bookingRouter)
 route.use('/user', userRouter)
-route.use('/dashboard', dashboardRouter)
 
 module.exports = route
